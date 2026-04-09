@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecosistema Digital VPAF — MVP1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --tec-navy: #003057;
+  --tec-gold: #B5862A;
+  --tec-gold-light: #F0C96A;
+  --bg: #F5F4F0;
+  --bg-card: #FFFFFF;
+  --border: #E0DDD6;
+  --text: #1A1A1A;
+  --text-muted: #6B6860;
+  --text-light: #9C9A94;
+  --new: #E8593C;
+  --new-light: #FDF0EC;
+  --existing-t: #2D7D4E;
+  --existing-t-light: #EAF4EE;
+  --existing-vpaf: #1B5FAA;
+  --existing-vpaf-light: #E6EFF9;
+  --commercial: #1A1A1A;
+  --r1: #185FA5; --r2: #3B6D11; --r3: #854F0B; --r4: #534AB7; --r5: #0F6E56;
+  --in-color: #0F6E56;
+  --out-color: #993C1D;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+
+/* TOP NAV */
+.nav{background:var(--tec-navy);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:12px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.nav-brand{display:flex;align-items:center;gap:10px;color:#fff}
+.nav-brand .logo{width:28px;height:28px;background:var(--tec-gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;color:var(--tec-navy);letter-spacing:-.5px}
+.nav-brand span{font-size:13px;font-weight:500;opacity:.9}
+.nav-brand em{font-style:normal;color:var(--tec-gold-light);font-weight:300;font-size:11px;margin-left:4px}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.nav-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);font-weight:500}
+.nav-btn:hover{background:rgba(255,255,255,.15)}
+.nav-btn.primary{background:var(--tec-gold);border-color:var(--tec-gold);color:var(--tec-navy);font-weight:600}
+.nav-btn.primary:hover{background:var(--tec-gold-light)}
+.edit-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:11px;background:rgba(229,89,60,.2);color:#FF8C6B;border:1px solid rgba(229,89,60,.3)}
+.edit-badge.off{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.1)}
+
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:1fr 420px;overflow:hidden}
+.canvas-wrap{overflow:auto;padding:24px;background:var(--bg)}
+.panel{background:var(--bg-card);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+
+/* ARCHITECTURE CANVAS */
+.arch-canvas{min-width:900px;max-width:1200px;margin:0 auto}
+.arch-title{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;font-family:'DM Mono',monospace}
+
+/* PORTAL BAR */
+.portal-bar{position:relative;background:var(--new);border-radius:10px;padding:12px 20px;cursor:pointer;transition:all .2s;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.portal-bar:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.portal-bar.selected{box-shadow:0 0 0 3px var(--tec-gold),var(--shadow-md);transform:translateY(-1px)}
+.portal-bar-label{font-size:15px;font-weight:600;color:#fff;text-align:center;letter-spacing:-.2px}
+.portal-bar-sub{font-size:11px;color:rgba(255,255,255,.7);text-align:center;margin-top:2px}
+.portal-dot{width:8px;height:8px;border-radius:50%;background:#F0C96A;position:absolute;top:8px;left:10px}
+
+/* SYSTEMS GRID */
+.systems-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+.sys-node{border-radius:8px;padding:8px 10px;cursor:pointer;transition:all .18s;border:1.5px solid transparent;min-width:80px;max-width:110px;flex:1;text-align:center;position:relative;box-shadow:var(--shadow-sm)}
+.sys-node:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.sys-node.selected{box-shadow:0 0 0 3px var(--tec-gold),var(--shadow-md);transform:translateY(-2px)}
+.sys-node.type-new{background:var(--new-light);border-color:#F5BFAE}
+.sys-node.type-transversal{background:var(--existing-t-light);border-color:#A8D5B8}
+.sys-node.type-vpaf{background:var(--existing-vpaf-light);border-color:#AACAEE}
+.sys-node .node-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
+.sys-node .node-sub{font-size:9px;color:var(--text-muted);margin-top:2px;line-height:1.2}
+.sys-node .node-dot{width:6px;height:6px;border-radius:50%;position:absolute;top:6px;right:6px}
+.dot-purple{background:#7F77DD}
+.dot-blue{background:#378ADD}
+.sys-node.commercial{border-bottom:3px solid var(--commercial)}
+.conn-line{opacity:.4;pointer-events:none}
+
+/* FUD BAR */
+.fud-bar{background:var(--new);border-radius:10px;padding:10px 20px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;gap:8px}
+.fud-bar:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.fud-bar.selected{box-shadow:0 0 0 3px var(--tec-gold),var(--shadow-md)}
+.fud-bar-label{font-size:13px;font-weight:600;color:#fff}
+.fud-bar .portal-dot{position:static;margin:0}
+
+/* SIDE SYSTEMS */
+.side-group{display:flex;flex-direction:column;gap:8px}
+.arch-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;margin-top:12px}
+.arch-right{display:flex;flex-direction:column;gap:8px}
+
+/* PANEL */
+.panel-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;gap:12px}
+.panel-empty .icon{width:48px;height:48px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px}
+.panel-empty p{font-size:13px;color:var(--text-muted);line-height:1.6;max-width:260px}
+
+.panel-content{flex:1;overflow-y:auto;padding:20px}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-card);z-index:10}
+.sys-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sys-type-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:600}
+.sys-type-badge.new{background:var(--new-light);color:var(--new)}
+.sys-type-badge.trans{background:var(--existing-t-light);color:var(--existing-t)}
+.sys-type-badge.vpaf{background:var(--existing-vpaf-light);color:var(--existing-vpaf)}
+
+.section{margin-bottom:18px}
+.section-label{font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;font-family:'DM Mono',monospace}
+.section-content{font-size:13px;color:var(--text);line-height:1.7}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500}
+.tag.master{background:#EAF3DE;color:#3B6D11}
+.tag.func{background:#E6EFF9;color:#185FA5}
+.tag.brecha{background:#FCEBEB;color:#A32D2D}
+.tag.ok{background:#EAF3DE;color:#3B6D11}
+.tag.warn{background:#FFF3CD;color:#856404}
+
+/* CONNECTIONS */
+.conn-list{display:flex;flex-direction:column;gap:6px}
+.conn-item{border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;background:var(--bg-card)}
+.conn-item:hover{border-color:var(--tec-gold);background:#FDFBF4}
+.conn-item.in{border-left:3px solid var(--in-color)}
+.conn-item.out{border-left:3px solid var(--out-color)}
+.conn-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.conn-dir{font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px}
+.conn-dir.in{background:var(--existing-t-light);color:var(--in-color)}
+.conn-dir.out{background:var(--new-light);color:var(--out-color)}
+.conn-sys{font-size:12px;font-weight:600;color:var(--text)}
+.conn-id{font-size:9px;color:var(--text-light);font-family:'DM Mono',monospace}
+.conn-desc{font-size:11px;color:var(--text-muted);line-height:1.5}
+.conn-release{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;font-family:'DM Mono',monospace}
+.rel-r1{background:#E6F1FB;color:#185FA5}
+.rel-r2{background:#EAF3DE;color:#3B6D11}
+.rel-r3{background:#FAEEDA;color:#854F0B}
+.rel-r4{background:#EEEDFE;color:#534AB7}
+.rel-r5{background:#E1F5EE;color:#0F6E56}
+.rel-lgc{background:#F1EFE8;color:#5F5E5A}
+
+/* EDIT MODE */
+.edit-panel{padding:16px 20px;border-top:1px solid var(--border);background:var(--bg)}
+.edit-panel textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:12px;font-family:'DM Sans',sans-serif;resize:vertical;background:var(--bg-card);color:var(--text);line-height:1.6;min-height:80px}
+.edit-panel textarea:focus{outline:none;border-color:var(--tec-gold)}
+.edit-actions{display:flex;gap:8px;margin-top:8px}
+.btn-save{padding:6px 14px;background:var(--tec-navy);color:#fff;border:none;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500}
+.btn-save:hover{background:#004070}
+.btn-cancel{padding:6px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text-muted)}
+.edit-hint{font-size:10px;color:var(--text-light);margin-top:6px}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted)}
+.leg-box{width:12px;height:12px;border-radius:3px;border:1.5px solid}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--tec-navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* COMMENTS */
+.comment-item{background:var(--bg);border-radius:8px;padding:10px;border-left:3px solid var(--tec-gold);margin-bottom:6px}
+.comment-meta{font-size:10px;color:var(--text-light);font-family:'DM Mono',monospace;margin-bottom:4px}
+.comment-text{font-size:12px;color:var(--text);line-height:1.5}
+
+.no-data{font-size:12px;color:var(--text-light);font-style:italic;padding:8px 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="logo">TEC</div>
+    <span>Ecosistema Digital VPAF</span>
+    <em>MVP1 · Oct 2026</em>
+  </div>
+  <div class="nav-actions">
+    <span class="edit-badge off" id="edit-badge">● Modo lectura</span>
+    <button class="nav-btn" onclick="toggleEdit()" id="edit-btn">Activar edición</button>
+    <button class="nav-btn primary" onclick="exportData()">Exportar JSON</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- CANVAS -->
+  <div class="canvas-wrap">
+    <div class="arch-canvas">
+      <div class="arch-title">Arquitectura aplicativa — MVP1 v3 · Haz clic en cualquier plataforma</div>
+
+      <div class="legend">
+        <div class="leg-item"><div class="leg-box" style="background:#FDF0EC;border-color:#F5BFAE"></div>Nuevo habilitador</div>
+        <div class="leg-item"><div class="leg-box" style="background:#EAF4EE;border-color:#A8D5B8"></div>Habilitador transversal ya existente</div>
+        <div class="leg-item"><div class="leg-box" style="background:#E6EFF9;border-color:#AACAEE"></div>Habilitador VPAF ya existente</div>
+        <div class="leg-item"><div class="leg-box" style="background:#fff;border-color:#1A1A1A;border-bottom-width:3px"></div>Plataforma comercial</div>
+        <div class="leg-item">🟣 Requiere desarrollo &nbsp; 🔵 Requiere configuración</div>
+      </div>
+
+      <!-- PORTAL BAR -->
+      <div class="portal-bar" id="node-portal" onclick="selectSystem('portal')">
+        <div class="portal-dot"></div>
+        <div class="portal-bar-label">Portal Unificado</div>
+        <div class="portal-bar-sub">Núcleo del ecosistema · 51 integraciones activas</div>
+      </div>
+
+      <!-- MAIN SYSTEMS ROW -->
+      <div class="systems-grid" id="main-grid">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- SECOND ROW -->
+      <div class="arch-row">
+        <div class="side-group" id="left-group"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+          <!-- FUD -->
+          <div class="fud-bar" id="node-fud" onclick="selectSystem('fud')" style="width:320px">
+            <div class="portal-dot"></div>
+            <div class="fud-bar-label">FUD — Data Warehouse / Data Lake VPAF</div>
+          </div>
+          <!-- ServiceNow -->
+          <div class="sys-node type-transversal commercial" style="width:140px;text-align:center" onclick="selectSystem('servicenow')">
+            <div class="node-dot dot-blue"></div>
+            <div class="node-name">Service Now</div>
+            <div class="node-sub">ITSM / Tickets</div>
+          </div>
+        </div>
+        <div class="arch-right" id="right-group"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="panel">
+    <div id="panel-empty" class="panel-empty">
+      <div class="icon">🏗️</div>
+      <p>Selecciona cualquier plataforma del diagrama para ver sus funciones, datos maestros e integraciones con el ecosistema.</p>
+      <p style="font-size:11px;color:var(--text-light)">Activa el modo edición para agregar notas y retroalimentación colaborativa.</p>
+    </div>
+    <div id="panel-main" style="display:none;flex-direction:column;height:100%">
+      <div class="panel-header">
+        <div id="ph-title" class="sys-title"></div>
+        <div id="ph-type" style="margin-top:4px"></div>
+      </div>
+      <div class="panel-content" id="panel-content"></div>
+      <div class="edit-panel" id="edit-panel" style="display:none">
+        <div class="section-label">Agregar comentario / retroalimentación</div>
+        <textarea id="comment-input" placeholder="Escribe aquí tu observación, dato faltante, corrección o pregunta sobre esta plataforma..."></textarea>
+        <div class="edit-actions">
+          <button class="btn-save" onclick="saveComment()">Guardar</button>
+          <button class="btn-cancel" onclick="clearComment()">Limpiar</button>
+        </div>
+        <div class="edit-hint" id="edit-author-hint">Firma tu comentario con tu nombre para trazabilidad.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const SYSTEMS = {
+  portal: {
+    name: "Portal Unificado",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Núcleo de la experiencia digital del aprendedor VPAF. Punto único de entrada para descubrimiento, exploración, compra, inscripción y seguimiento de programas educativos. Incluye vista pública (no autenticada) y vista privada (aprendedor autenticado).",
+    funciones: [
+      "Catálogo y comparador de programas educativos",
+      "Registro y autenticación del aprendedor (pre-MDM y post-MDM)",
+      "Proceso de compra integrado con e-commerce VTEX",
+      "Facturación vía Interfactura",
+      "Estado de cuenta académico (Banner TEC y UTM)",
+      "Historial de pedidos y programas inscritos",
+      "Visualización de progreso de aprendizaje (LXP, TLG)",
+      "Insignias y certificados (Accredible)",
+      "Bot conversacional (Tec.bot VPAF)",
+      "Barra de búsqueda inteligente (Search bar / Tec.gpt)",
+      "Encuestas NPS y retroalimentación (Qualtrics, Tec.feedback)",
+      "Estado de cuenta financiero y perfil del aprendedor"
+    ],
+    maestros: ["ID Usuario (UUID)", "Email (llave de identidad federada)", "PIDEN (Arroba MDM)", "Nombre(s) y apellidos", "CURP", "RFC", "Fecha de nacimiento", "Teléfono / Mobile", "Afiliación / Sub-Afiliación Z-Aprendedor"],
+    brechas: ["Sub-Afiliación Z-Aprendedor PENDIENTE — bloqueante MVP1", "3 portales simultáneos en octubre (C-22)", "Catálogos SEA cargados manualmente en CMS (C-21)"],
+    release: "R1–R5"
+  },
+  idm: {
+    name: "Identity Manager",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: false,
+    desc: "Sistema de gestión de identidades (IAM To-Be). Repositorio central con un registro único por persona. Cada aprendedor posee un identificador único (UUID) independientemente de su rol.",
+    funciones: [
+      "Creación y gestión del registro de identidad digital del aprendedor",
+      "Autenticación y Single Sign-On (SSO) federado hacia todos los habilitadores",
+      "Validación de email (EmailConfirmed) y teléfono (MFA/OTP)",
+      "Propagación de identidad al MDM Central (PIDEN)"
+    ],
+    maestros: ["ID Usuario / UUID (PK)", "Email", "Username / login_id", "Mobile / teléfono", "EmailConfirmed", "MobileConfirmed (MFA)", "CURP", "PasswordHash"],
+    brechas: ["Modelo To-Be pendiente de implementación", "Sin conexión RENAPO para validación de CURP"],
+    release: "R4"
+  },
+  mdm: {
+    name: "MDM Central",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: false,
+    desc: "Master Data Management institucional. Fuente única de verdad del Dato Maestro de Persona Física. Gestiona el Golden Record de todos los datos de identidad y referencia del TEC.",
+    funciones: [
+      "Asignación y gestión del PIDEN (Arroba) — llave transversal del ecosistema",
+      "Mantenimiento del Golden Record de Persona Física",
+      "Gestión de catálogos institucionales (afiliación, sub-afiliación, tipo correo, sexo, domicilio)",
+      "Validación y deduplicación de registros de persona",
+      "Propagación de datos maestros a habilitadores via ETL / PowerCenter"
+    ],
+    maestros: ["PIDEN (Arroba) — clave transversal", "Afiliación (Cat00001)", "Sub-Afiliación Z-Aprendedor (Cat00002) — PENDIENTE", "Tipo de Correo (Cat00003)", "Tipo de Teléfono (Cat00004)", "Sexo (Cat00005)", "Identidad de Género (Cat00006)", "Tipo de Domicilio (Cat00007)"],
+    brechas: ["MDM intencionalmente desconectado del diagrama MVP1 (C-19)", "Sub-Afiliación Z-Aprendedor sin definir — bloqueante para VTEX y Portal"],
+    release: "R4"
+  },
+  fud: {
+    name: "FUD — Data Warehouse / Data Lake VPAF",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Fuente Única de Datos. Data Warehouse / Data Lake del ecosistema VPAF. Consolida datos de todas las plataformas para analítica institucional, reportes de aprendizaje, comportamiento del aprendedor e historial financiero.",
+    funciones: [
+      "Consolidación de datos transaccionales de VTEX (órdenes, catálogo, SKUs)",
+      "Integración con Banner TEC/UTM para historial financiero-académico",
+      "Analítica de comportamiento desde Microsoft Clarity y Portal",
+      "Datos de aprendizaje desde LXP (Cypher), LMS (TLG), SEA",
+      "NPS y retroalimentación desde Qualtrics, Tec.feedback",
+      "Datos de expertos desde PASE",
+      "Exposición al Portal (historial de compras, comportamiento, aprendizaje)"
+    ],
+    maestros: ["ID Pedido VTEX (orderId)", "ID Pedido Gestor (folio Banner)", "ID Programa / SKU", "ID Aprendedor / PIDEN", "Estado de Orden VTEX", "Monto transaccional"],
+    brechas: ["Sin tabla correspondencia orderId VTEX ↔ ID Gestor (G-01 CRÍTICA)", "Estado de Orden VTEX no llega al FUD (G-02 CRÍTICA)", "Catálogo VTEX no llega al FUD (G-03)", "Carrito abandonado sin integración (G-04)", "Modelo de datos FUD pendiente acuerdo con Adrián Tijerina (deadline jun 2026)"],
+    release: "R4–R5"
+  },
+  vtex: {
+    name: "E-Commerce (VTEX)",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: true,
+    desc: "Motor headless de e-commerce. Plataforma de compra de programas educativos. El catálogo se carga nativamente en VTEX. Post-compra: webhook → Bus ESB IBM → Gestor de Pagos → Banner/SAP.",
+    funciones: [
+      "Catálogo de programas educativos (Productos y SKUs)",
+      "Proceso de checkout con pago vía Open Pay (embebido)",
+      "Gestión de órdenes y estados de pedido",
+      "Descuentos y cupones por audiencia",
+      "Recuperación de carritos abandonados",
+      "Almacenamiento de perfil del cliente (IDP-10045 vía Master Data API v2)"
+    ],
+    maestros: ["ID Producto VTEX (ProductId)", "ID SKU (SkuId)", "Nombre del Producto / SKU", "Estado del Producto (IsActive)", "ID Pedido VTEX (orderId)", "Estado de Orden", "Monto Total", "IDP-10045 (atributo cliente MDM)"],
+    brechas: ["DP-07: Definición de catálogo (SKU vs nombre del programa) pendiente", "ID VTEX ≠ ID Gestor de Pagos — sin tabla de correspondencia en FUD"],
+    release: "R3"
+  },
+  sea: {
+    name: "SEA (Gestión Académica)",
+    type: "vpaf",
+    typeLabel: "Habilitador VPAF ya existente",
+    dot: "blue",
+    commercial: false,
+    desc: "Sistema de Administración Escolar. Fuente del catálogo de programas académicos del ecosistema VPAF. Gestiona la inscripción formal, expediente académico y acreditación.",
+    funciones: [
+      "Catálogo de programas académicos (fuente de verdad)",
+      "Gestión de inscripciones y expediente del aprendedor",
+      "Acreditación y transferencia de calificaciones",
+      "Sincronización con LXP (Cypher) y LMS (TLG)",
+      "Integración con Accredible para emisión de insignias"
+    ],
+    maestros: ["ID Programa (clave SEA)", "Nombre del Programa", "Tipo de Programa", "Línea de Negocio", "Formato / Modalidad", "Campus / Sede", "Escuela / División", "Período / Cohort"],
+    brechas: ["Catálogos SEA se cargan manualmente al CMS en abril (C-21)", "Sin integración automática SEA → Portal en MVP1", "Transferencia manual de calificaciones entre LMS y SEA (H-hallazgo identificado)"],
+    release: "R4"
+  },
+  lxp: {
+    name: "LXP (Cypher Learning)",
+    type: "vpaf",
+    typeLabel: "Habilitador VPAF ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Learning Experience Platform. Plataforma de aprendizaje en línea del ecosistema VPAF. Gestiona el acceso a contenidos, progreso del aprendedor y acreditación de módulos.",
+    funciones: [
+      "Entrega de contenidos de aprendizaje en línea",
+      "Gestión del progreso del aprendedor",
+      "Emisión de datos de acreditación hacia SEA",
+      "Activación de encuestas NPS (Tec.feedback)",
+      "Sincronización de calificaciones con SEA"
+    ],
+    maestros: ["ID Aprendedor (Cypher)", "Email (login_id)", "ID Curso / Módulo", "Estado de Progreso", "Porcentaje de Avance", "Calificación Final"],
+    brechas: ["Transferencia de calificaciones Cypher → SEA requiere proceso manual o integración pendiente"],
+    release: "R4"
+  },
+  lms: {
+    name: "LMS (TLG)",
+    type: "vpaf",
+    typeLabel: "Habilitador VPAF ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Learning Management System TLG. Plataforma de gestión del aprendizaje para programas U4P (para personas). Integrado con el Portal para visualización de progreso.",
+    funciones: [
+      "Gestión de cursos y contenidos de aprendizaje",
+      "Progreso y avance del aprendedor",
+      "Transferencia de acreditación a SEA",
+      "Activación de NPS (Tec.feedback) post-módulo"
+    ],
+    maestros: ["ID Aprendedor (TLG)", "Email", "ID Curso", "Estado Módulo", "Calificación"],
+    brechas: ["Transferencia manual de calificaciones TLG → SEA (hallazgo arquitectónico)"],
+    release: "R3"
+  },
+  pase: {
+    name: "PASE (Gestión de Expertos)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: false,
+    desc: "Plataforma de Administración y Seguimiento de Expertos. Repositorio de perfiles de instructores y coordinadores académicos. Fuente del catálogo de expertos para el Portal.",
+    funciones: [
+      "Registro y gestión del perfil del experto (instructor)",
+      "Exposición de semblanza, foto y reseña al Portal",
+      "Sincronización con CRM Salesforce (IdExperto_PASE)",
+      "NPS histórico y ranking del experto (via Qualtrics)"
+    ],
+    maestros: ["Academia_Id (PK)", "Nombre(s) y apellidos", "Email (llave de integración con SEA y Qualtrics)", "Foto (Base64)", "Especialidad / Área Temática", "NPS histórico", "Ranking consultor"],
+    brechas: ["Token de autenticación PASE en querystring — riesgo de seguridad (alertado en DEDIND001)", "Sin ETL PASE → Portal en MVP1 para perfil completo", "Infraestructura legacy: IIS 10 / SQL Server 2012"],
+    release: "R1, R3"
+  },
+  crm: {
+    name: "CRM (Salesforce)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: true,
+    desc: "CRM institucional. Gestiona el ciclo de vida del prospecto y aprendedor desde el primer contacto hasta la conversión. HubSpot recibe leads antes que Salesforce (C-18 arquitectónico).",
+    funciones: [
+      "Gestión del prospecto y oportunidad de venta",
+      "Flujos de remarketing por carrito abandonado",
+      "Sincronización del perfil del aprendedor (baja a MDM/EBX)",
+      "Visibilidad del estado del proceso de compra al Portal",
+      "Integración con PASE (IdExperto_PASE)"
+    ],
+    maestros: ["Rol / Subrol (Persona Física / Moral)", "Datos Generales (Nombre, CURP, RFC, Fecha nac.)", "Datos de Contacto (email, teléfono)", "Datos de Localización", "Aviso de Privacidad", "ID Oportunidad (IdOportunidad)"],
+    brechas: ["HubSpot recibe leads antes que Salesforce — flujo C-18 sin documentar completamente", "Coexistencia de datos limpios nuevos con datos sucios legacy (DP-01)"],
+    release: "R3"
+  },
+  qualtrics: {
+    name: "Qualtrics",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Plataforma de encuestas y experiencia del cliente. Gestiona las encuestas NPS y de satisfacción del aprendedor, instructor y programa. Datos enviados al FUD para analítica institucional.",
+    funciones: [
+      "Encuestas de satisfacción del participante (NPS, CSAT)",
+      "Encuestas al experto/instructor",
+      "Envío de resultados de insights al Portal",
+      "Integración con PASE para evaluación del experto"
+    ],
+    maestros: ["studentId / studentEmail", "teacherId / teacherEmail", "IdOportunidad", "IdOportunidadPrograma", "TipoEncuesta", "ConsiderarNPS", "FechaEncuesta"],
+    brechas: [],
+    release: "R3, R4"
+  },
+  facturador: {
+    name: "Facturador (Interfactura)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Sistema de facturación electrónica CFDI. El Portal solicita la emisión de factura post-pago con los datos del aprendedor. Integrado con Banner TEC y UTM.",
+    funciones: [
+      "Emisión de CFDI electrónico post-pago",
+      "Devolución del PDF/XML de factura al Portal",
+      "Integración con Banner TEC/UTM para registro contable"
+    ],
+    maestros: ["RFC", "Razón Social / Nombre", "Monto", "Concepto (Programa)", "Uso de CFDI", "Correo electrónico para envío"],
+    brechas: [],
+    release: "R3"
+  },
+  banner_tec: {
+    name: "Banner TEC",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Sistema ERP académico-financiero del TEC de Monterrey. Fuente del estado de cuenta académico y financiero del aprendedor. Receptor de transacciones del Gestor de Pagos.",
+    funciones: [
+      "Estado de cuenta académico y financiero del aprendedor",
+      "Registro de transacciones del Gestor de Pagos",
+      "Emisión de CFDI vía Interfactura",
+      "Sincronización con SAP/HANA para contabilidad"
+    ],
+    maestros: ["Clave de Concepto (equivalente a ProductId VTEX)", "ID Estudiante Banner", "Monto Transacción", "Folio de Facturación (ID Gestor)"],
+    brechas: ["ID Banner ≠ ID VTEX — requiere tabla de correspondencia en FUD"],
+    release: "R3, R4"
+  },
+  middleware: {
+    name: "Middleware",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Middleware de nueva generación (Middleware 26). Capa de integración entre el Portal Unificado y el E-Commerce VTEX. Sin uso definido hasta que el blueprint de E-Commerce esté listo (C-14 arquitectónico).",
+    funciones: [
+      "Orquestación de mensajes entre Portal y VTEX",
+      "Propagación de datos de compra hacia SEA y Cypher",
+      "Log de transacciones para auditoría"
+    ],
+    maestros: ["ID Pedido VTEX", "Estado de Orden", "ID Aprendedor / PIDEN", "ID Programa / SKU"],
+    brechas: ["Sin uso definido hasta que blueprint E-Commerce esté listo (C-14)", "Rol exacto vs. Middleware ESB IBM no totalmente delimitado"],
+    release: "R3"
+  },
+  tecbot: {
+    name: "Tec.bot VPAF",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Bot conversacional del ecosistema VPAF construido sobre Azure Bot Service. Se incrusta en el Portal como widget Angular/Web Component. R2: soporte general. R5: skills personalizados con datos del aprendedor.",
+    funciones: [
+      "Asistencia conversacional al visitante y aprendedor",
+      "Escalamiento a tickets en ServiceNow",
+      "Skills personalizados: estado de cuenta, progreso (R5)",
+      "Integración con IA (Semantic Kernel / Rafa Vélez)"
+    ],
+    maestros: ["Direct Line Token (efímero)", "userAuthStatus (estado de sesión del usuario)", "ID Conversación"],
+    brechas: ["Skills con datos del aprendedor son scope de R5 (no R2)", "Dependencia de estabilización arquitectónica (LUIS → Semantic Kernel)"],
+    release: "R2, R5"
+  },
+  searchbar: {
+    name: "Search Bar (Perfilador)",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Componente de búsqueda inteligente evolucionado a recomendador/perfilador. Diferente a la Barra de Búsqueda de CMS. Frontends desarrollados por equipo Portal; backends (APIs) por equipo Manuel Terán. No sube al API Manager en MVP1.",
+    funciones: [
+      "Búsqueda semántica de programas educativos",
+      "Perfilamiento y recomendación personalizada (Tec.gpt)",
+      "Consulta de contenido del CMS Drupal",
+      "Guardado de historial de búsqueda"
+    ],
+    maestros: ["Query del usuario", "Historial de búsqueda", "Perfil de preferencias (inferido)"],
+    brechas: ["Conversación frontend-backend aún no cerrada (al momento de la sesión de Portales)", "No sube al API Manager — sin inventario formal de la API"],
+    release: "R2, R4"
+  },
+  tecgpt: {
+    name: "Tec.gpt (IA)",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Motor de IA generativa del ecosistema VPAF. Backend desarrollado por equipo Manuel Terán. Alimenta a Search Bar (recomendaciones) y Fichas Técnicas. No registrado en API Manager para MVP1.",
+    funciones: [
+      "Recomendaciones personalizadas de programas (Search Bar)",
+      "Procesamiento semántico de consultas de búsqueda",
+      "Generación de contenido para Fichas Técnicas"
+    ],
+    maestros: [],
+    brechas: ["API sin inventario formal en API Manager (decisión arquitectónica de la sesión de Portales)"],
+    release: "R2"
+  },
+  tecfeedback: {
+    name: "Tec.feedback",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Sistema de retroalimentación NPS in-app y por correo electrónico. Integrado con LXP, LMS, SEA y Portal para activar encuestas en los momentos correctos del journey del aprendedor.",
+    funciones: [
+      "Encuestas NPS in-app post-módulo/programa",
+      "Encuestas NPS por correo electrónico",
+      "Sincronización de resultados con SEA y FUD"
+    ],
+    maestros: ["ID Aprendedor", "ID Programa / Módulo", "Fecha de fin de módulo", "Respuesta NPS", "Comentario abierto"],
+    brechas: [],
+    release: "R5"
+  },
+  fichas: {
+    name: "Fichas Técnicas",
+    type: "new",
+    typeLabel: "Nuevo habilitador",
+    dot: "purple",
+    commercial: false,
+    desc: "Módulo de fichas descriptivas de programas educativos. Integrado con Tec.gpt para generación asistida de contenido y con CMS Drupal y SEA-SIS para datos del programa.",
+    funciones: [
+      "Visualización de fichas detalladas de programas",
+      "Generación asistida de contenido (Tec.gpt)",
+      "Sincronización con catálogo SEA-SIS"
+    ],
+    maestros: ["ID Programa", "Descripción del programa", "Objetivos", "Duración", "Modalidad", "Perfil del participante"],
+    brechas: [],
+    release: "R2"
+  },
+  cms: {
+    name: "CMS (Drupal)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Content Management System. Drupal headless como fuente de contenido editorial y páginas del Portal. El Portal consume el CMS vía JSON:API (GET). En R1: sitio informativo. En R3: Portal Institucional completo.",
+    funciones: [
+      "Gestión de contenido editorial del Portal",
+      "Catálogo visual de programas (imágenes, recursos)",
+      "Fichas técnicas e información institucional",
+      "Contenido para Search Bar"
+    ],
+    maestros: ["ID Nodo (Drupal)", "Tipo de contenido (bundle)", "Slug / URL", "Imagen de programa", "Texto de descripción"],
+    brechas: ["Catálogos de SEA se cargan manualmente al CMS en abril (C-21) — sin integración automática SEA → CMS"],
+    release: "R1, R3"
+  },
+  servicenow: {
+    name: "ServiceNow",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "blue",
+    commercial: true,
+    desc: "Plataforma ITSM. Recibe tickets escalados desde el Tec.bot VPAF cuando no puede resolver una consulta. Envía notificaciones de actualización de ticket de vuelta al bot.",
+    funciones: [
+      "Gestión de tickets de soporte del aprendedor",
+      "Notificación de actualizaciones de ticket al bot",
+      "Escalamiento de incidencias del ecosistema"
+    ],
+    maestros: ["ID Ticket", "Descripción del problema", "Estado del ticket", "Aprendedor (email)", "Fecha de resolución"],
+    brechas: [],
+    release: "R2, R5"
+  }
+};
+
+// CONNECTIONS (from DEDIND001 v9)
+const CONNECTIONS = {
+  portal: {
+    in: [
+      {sys:"cms",id:"INT-R1-001",label:"Drupal CMS → Portal",desc:"Contenido editorial, catálogo visual de programas (JSON:API GET headless).",rel:"R1"},
+      {sys:"pase",id:"INT-R1-003",label:"PASE Expertos → Portal",desc:"Semblanza, foto (Base64), reseña y ranking de instructores.",rel:"R1"},
+      {sys:"tecbot",id:"INT-R2-004",label:"Tec.bot → Portal",desc:"Widget embebido (Angular/Web Component) con conexión Direct Line WebSocket.",rel:"R2"},
+      {sys:"crm",id:"INT-R3-005",label:"CRM Salesforce → Portal",desc:"Estado del prospecto/oportunidad de venta.",rel:"R3"},
+      {sys:"middleware",id:"INT-R3-010",label:"Middleware 26 → Portal",desc:"Confirmación de transacción e inscripción.",rel:"R3"},
+      {sys:"facturador",id:"INT-R3-012",label:"Facturador → Portal",desc:"PDF/XML de factura CFDI para descarga del aprendedor.",rel:"R3"},
+      {sys:"banner_tec",id:"INT-R3-014",label:"Banner TEC → Portal",desc:"Estado de cuenta académico e historial de inscripciones.",rel:"R3"},
+      {sys:"qualtrics",id:"INT-R3-018",label:"Qualtrics → Portal",desc:"Resultados e insights de encuestas NPS.",rel:"R3"},
+      {sys:"lms",id:"INT-R3-023",label:"LMS TLG → Portal",desc:"Progreso académico e historial del aprendedor.",rel:"R3"},
+      {sys:"idm",id:"IDN-R4-004",label:"Identity Manager → Portal",desc:"ID usuario, token de sesión y atributos de identidad post-login.",rel:"R4"},
+      {sys:"mdm",id:"IDN-R4-007",label:"MDM → Portal",desc:"Catálogos y datos maestros (afiliación, Z-Aprendedor).",rel:"R4"},
+      {sys:"sea",id:"INT-R4-011",label:"SEA-SIS → Portal",desc:"Datos académicos: inscripción confirmada, calificaciones.",rel:"R4"},
+      {sys:"lxp",id:"INT-R4-012",label:"Cypher LXP → Portal",desc:"Progreso de aprendizaje y certificados del aprendedor.",rel:"R4"},
+      {sys:"searchbar",id:"INT-R4-002",label:"Search Bar → Portal",desc:"Resultados de búsqueda y recomendaciones personalizadas.",rel:"R4"},
+      {sys:"fud",id:"INT-R5-001",label:"FUD → Portal (Comportamiento)",desc:"Historial de comportamiento del aprendedor para personalización.",rel:"R5"},
+      {sys:"fud",id:"INT-R5-002",label:"FUD → Portal (Compras/Aprendizaje)",desc:"Historial de programas, compras y estado de cuenta integral.",rel:"R5"},
+      {sys:"tecbot",id:"INT-R5-006",label:"Tec.bot → Portal (R5)",desc:"Skills personalizados con datos del aprendedor (estado de cuenta, progreso).",rel:"R5"},
+      {sys:"tecfeedback",id:"INT-R5-008",label:"Tec.feedback → Portal",desc:"Resultados NPS e historial de retroalimentación del aprendedor.",rel:"R5"},
+    ],
+    out: [
+      {sys:"tecbot",id:"INT-R2-001",label:"Portal → Tec.bot",desc:"BFF del Portal genera Direct Line Token (S2S) para inicializar conversación.",rel:"R2"},
+      {sys:"crm",id:"INT-R3-004",label:"Portal → CRM Salesforce",desc:"Datos del prospecto (nombre, email, teléfono) en el momento de registro.",rel:"R3"},
+      {sys:"middleware",id:"INT-R3-007",label:"Portal → Middleware 26",desc:"Datos de compra hacia el middleware. Sin uso definido hasta blueprint E-Commerce (C-14).",rel:"R3"},
+      {sys:"facturador",id:"INT-R3-011",label:"Portal → Facturador",desc:"Solicitud de facturación: RFC, monto, concepto del programa.",rel:"R3"},
+      {sys:"banner_tec",id:"INT-R3-013",label:"Portal → Banner TEC",desc:"Consulta de estado de cuenta académico.",rel:"R3"},
+      {sys:"qualtrics",id:"INT-R3-017",label:"Portal → Qualtrics",desc:"Datos contextuales del aprendedor para activar encuestas NPS en el momento correcto.",rel:"R3"},
+      {sys:"lms",id:"INT-R3-022",label:"Portal → LMS TLG",desc:"Datos de inscripción para activación del acceso al aprendizaje.",rel:"R3"},
+      {sys:"idm",id:"IDN-R4-001",label:"Portal → Identity Manager",desc:"Datos de registro del prospecto para creación del registro de identidad (IAM To-Be).",rel:"R4"},
+      {sys:"lxp",id:"INT-R4-003",label:"Portal → Cypher LXP",desc:"Datos de inscripción para habilitar acceso al aprendizaje en línea.",rel:"R4"},
+      {sys:"sea",id:"INT-R4-004",label:"Portal → SEA-SIS",desc:"Datos académicos para actualización del expediente del aprendedor.",rel:"R4"},
+      {sys:"searchbar",id:"INT-R4-001",label:"Portal → Search Bar",desc:"Contexto del usuario para personalizar resultados de búsqueda.",rel:"R4"},
+      {sys:"tecbot",id:"INT-R5-003",label:"Portal → Tec.bot (R5)",desc:"Contexto del aprendedor autenticado para skills personalizados.",rel:"R5"},
+      {sys:"tecfeedback",id:"INT-R5-007",label:"Portal → Tec.feedback",desc:"Contexto del aprendedor para activar encuestas NPS in-app.",rel:"R5"},
+      {sys:"fud",id:"FUD-R5-001",label:"Portal → FUD (Insights)",desc:"Eventos de comportamiento e interacción del aprendedor en el Portal.",rel:"R5"},
+    ]
+  },
+  vtex: {
+    in:[{sys:"middleware",id:"INT-R3-008",label:"Middleware 26 → VTEX",desc:"Propagación de datos desde Portal hacia VTEX.",rel:"R3"},{sys:"middleware",id:"INT-R3-016",label:"ESB IBM → VTEX (Orders)",desc:"Bus ESB IBM consulta Orders API post-webhook para detalle de la orden.",rel:"R3"}],
+    out:[{sys:"middleware",id:"INT-R3-009",label:"VTEX → Middleware 26",desc:"Webhook post-compra para flujo de inscripción.",rel:"R3"},{sys:"middleware",id:"INT-R3-015",label:"VTEX → ESB IBM",desc:"Webhook order-status-changed hacia Bus ESB IBM.",rel:"R3"},{sys:"fud",id:"G-01",label:"VTEX → FUD (pendiente)",desc:"orderId, estado de orden, catálogo, carritos. BRECHAS G-01 a G-04 CRÍTICAS.",rel:"pendiente"}]
+  },
+  idm:{in:[{sys:"mdm",id:"IDN-R4-003",label:"MDM → IDM",desc:"MDM devuelve PIDEN y atributos de datos maestros al IAM.",rel:"R4"},{sys:"portal",id:"IDN-R4-001",label:"Portal → IDM",desc:"Datos de registro del prospecto para creación de identidad.",rel:"R4"},{sys:"middleware",id:"IDN-R4-005",label:"Middleware 26 → IDM",desc:"Middleware propaga identidad al IAM.",rel:"R4"}],
+    out:[{sys:"mdm",id:"IDN-R4-002",label:"IDM → MDM",desc:"IAM propaga perfil al MDM para asignación de PIDEN y Golden Record.",rel:"R4"},{sys:"portal",id:"IDN-R4-004",label:"IDM → Portal",desc:"ID usuario, token de sesión y atributos post-login.",rel:"R4"},{sys:"middleware",id:"IDN-R4-006",label:"IDM → Middleware 26",desc:"IAM propaga identidad al Middleware.",rel:"R4"}]},
+  mdm:{in:[{sys:"idm",id:"IDN-R4-002",label:"IDM → MDM",desc:"IAM propaga perfil para Golden Record.",rel:"R4"}],out:[{sys:"idm",id:"IDN-R4-003",label:"MDM → IDM",desc:"PIDEN y datos maestros de vuelta al IAM.",rel:"R4"},{sys:"portal",id:"IDN-R4-007",label:"MDM → Portal",desc:"Catálogos y datos maestros al Portal.",rel:"R4"}]},
+  fud:{in:[{sys:"tecfeedback",id:"FUD-R4-001",label:"Tec.feedback → FUD",desc:"Resultados de encuestas NPS.",rel:"R4"},{sys:"banner_tec",id:"FUD-R4-002",label:"Banner TEC → FUD",desc:"Datos financiero-académicos.",rel:"R4"},{sys:"lxp",id:"FUD-R4-005",label:"Cypher LXP → FUD",desc:"Datos de progreso de aprendizaje.",rel:"R4"},{sys:"qualtrics",id:"FUD-R4-006",label:"Qualtrics → FUD",desc:"Resultados de encuestas.",rel:"R4"},{sys:"sea",id:"FUD-R4-007",label:"SEA-SIS → FUD",desc:"Datos académicos del aprendedor.",rel:"R4"},{sys:"lms",id:"FUD-R4-008",label:"LMS TLG → FUD",desc:"Datos de aprendizaje del LMS.",rel:"R4"},{sys:"portal",id:"FUD-R5-001",label:"Portal → FUD",desc:"Eventos de comportamiento e interacción del aprendedor.",rel:"R5"}],
+    out:[{sys:"portal",id:"INT-R5-001",label:"FUD → Portal (Comportamiento)",desc:"Historial de comportamiento para personalización.",rel:"R5"},{sys:"portal",id:"INT-R5-002",label:"FUD → Portal (Compras)",desc:"Historial de compras y aprendizaje.",rel:"R5"}]},
+};
+
+// ===================== STATE =====================
+let selectedSys = null;
+let editMode = false;
+let notes = {};
+
+try { notes = JSON.parse(localStorage.getItem('vpaf_notes')||'{}'); } catch(e){}
+
+// ===================== BUILD CANVAS =====================
+const MAIN_NODES = ['idm','banner_tec','facturador','tecfeedback','fichas','searchbar','tecbot','lms','pase','sea','lxp','crm','qualtrics'];
+const LEFT_NODES = [];
+const RIGHT_NODES = ['middleware','vtex'];
+
+function buildNode(key){
+  const s = SYSTEMS[key];
+  if(!s) return '';
+  const typeClass = s.type==='new'?'type-new':s.type==='transversal'?'type-transversal':'type-vpaf';
+  const dotClass = s.dot==='purple'?'dot-purple':'dot-blue';
+  const comm = s.commercial?'commercial':'';
+  return `<div class="sys-node ${typeClass} ${comm}" id="node-${key}" onclick="selectSystem('${key}')">
+    <div class="node-dot ${dotClass}"></div>
+    <div class="node-name">${s.name.replace(' (Salesforce)','').replace(' (Cypher Learning)','').replace(' (Interfactura)','').replace(' (TLG)','')}</div>
+    ${s.typeLabel.includes('VPAF')?'<div class="node-sub">Ya existente</div>':s.typeLabel.includes('transversal')?'<div class="node-sub">Transversal</div>':''}
+  </div>`;
+}
+
+document.getElementById('main-grid').innerHTML = MAIN_NODES.map(buildNode).join('');
+document.getElementById('right-group').innerHTML = RIGHT_NODES.map(k=>`<div class="sys-node type-new commercial" id="node-${k}" onclick="selectSystem('${k}')"><div class="node-dot dot-purple"></div><div class="node-name">${SYSTEMS[k].name.replace(' (VTEX)','')}</div><div class="node-sub">Nuevo habilitador</div></div>`).join('');
+
+// ===================== SELECT SYSTEM =====================
+function selectSystem(key){
+  document.querySelectorAll('.sys-node,.portal-bar,.fud-bar').forEach(el=>el.classList.remove('selected'));
+  const nodeEl = document.getElementById('node-'+key) || document.getElementById('node-portal') ;
+  if(key==='portal') document.getElementById('node-portal').classList.add('selected');
+  else if(key==='fud') document.getElementById('node-fud').classList.add('selected');
+  else if(document.getElementById('node-'+key)) document.getElementById('node-'+key).classList.add('selected');
+  
+  selectedSys = key;
+  renderPanel(key);
+}
+
+function renderPanel(key){
+  const s = SYSTEMS[key];
+  if(!s){document.getElementById('panel-empty').style.display='flex';document.getElementById('panel-main').style.display='none';return;}
+  document.getElementById('panel-empty').style.display='none';
+  document.getElementById('panel-main').style.display='flex';
+
+  const typeColor = s.type==='new'?'#E8593C':s.type==='transversal'?'#2D7D4E':'#1B5FAA';
+  document.getElementById('ph-title').textContent = s.name;
+  document.getElementById('ph-type').innerHTML = `<span class="sys-type-badge ${s.type==='new'?'new':s.type==='transversal'?'trans':'vpaf'}">${s.typeLabel}</span>${s.commercial?'&nbsp;<span class="sys-type-badge" style="background:#F1EFE8;color:#5F5E5A">Plataforma comercial</span>':''}`;
+
+  const conns = CONNECTIONS[key]||{in:[],out:[]};
+  const sysNotes = notes[key]||[];
+
+  document.getElementById('panel-content').innerHTML = `
+    <div class="section">
+      <div class="section-label">Descripción</div>
+      <div class="section-content">${s.desc}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Funciones principales</div>
+      ${s.funciones.length?s.funciones.map(f=>`<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:4px"><span style="color:var(--tec-gold);font-size:10px;margin-top:3px">▶</span><span class="section-content" style="font-size:12px">${f}</span></div>`).join(''):'<span class="no-data">Sin datos — activa edición para agregar</span>'}
+    </div>
+
+    <div class="section">
+      <div class="section-label">Datos maestros que gestiona</div>
+      <div class="tags">${s.maestros.length?s.maestros.map(m=>`<span class="tag master">${m}</span>`).join(''):'<span class="no-data">No definidos aún</span>'}</div>
+    </div>
+
+    ${s.brechas.length?`<div class="section">
+      <div class="section-label">Brechas identificadas</div>
+      <div class="tags">${s.brechas.map(b=>`<span class="tag brecha">⚠ ${b}</span>`).join('')}</div>
+    </div>`:''}
+
+    <div class="section">
+      <div class="section-label">Release</div>
+      <span class="tag func" style="font-family:'DM Mono',monospace">${s.release}</span>
+    </div>
+
+    ${conns.in&&conns.in.length?`<div class="section">
+      <div class="section-label">Entradas — sistemas que envían datos a ${s.name.split(' ')[0]}</div>
+      <div class="conn-list">${conns.in.map(c=>connItem(c,'in')).join('')}</div>
+    </div>`:''}
+
+    ${conns.out&&conns.out.length?`<div class="section">
+      <div class="section-label">Salidas — sistemas que reciben datos desde ${s.name.split(' ')[0]}</div>
+      <div class="conn-list">${conns.out.map(c=>connItem(c,'out')).join('')}</div>
+    </div>`:''}
+
+    ${!conns.in?.length&&!conns.out?.length?`<div class="section"><span class="no-data">Integraciones con Portal no inventariadas aún.</span></div>`:''}
+
+    <div class="section">
+      <div class="section-label">Comentarios del equipo (${sysNotes.length})</div>
+      ${sysNotes.length?sysNotes.map(n=>`<div class="comment-item"><div class="comment-meta">${n.author||'Anónimo'} · ${n.date}</div><div class="comment-text">${n.text}</div></div>`).join(''):'<span class="no-data">Sin comentarios aún.</span>'}
+    </div>
+  `;
+
+  document.getElementById('edit-panel').style.display = editMode ? 'block' : 'none';
+}
+
+function connItem(c, dir){
+  const target = SYSTEMS[c.sys];
+  const relClass = {'R1':'rel-r1','R2':'rel-r2','R3':'rel-r3','R4':'rel-r4','R5':'rel-r5','LGC':'rel-lgc','pendiente':''}[c.rel]||'';
+  return `<div class="conn-item ${dir}" onclick="selectSystem('${c.sys}')">
+    <div class="conn-header">
+      <span class="conn-dir ${dir}">${dir==='in'?'ENTRADA':'SALIDA'}</span>
+      <span class="conn-sys">${target?target.name.split('(')[0].trim():c.sys}</span>
+      <span class="conn-id">${c.id}</span>
+      <span class="conn-release ${relClass}">${c.rel}</span>
+    </div>
+    <div class="conn-desc">${c.desc}</div>
+  </div>`;
+}
+
+// ===================== EDIT MODE =====================
+function toggleEdit(){
+  editMode = !editMode;
+  document.getElementById('edit-badge').textContent = editMode ? '✏ Modo edición activo' : '● Modo lectura';
+  document.getElementById('edit-badge').className = editMode ? 'edit-badge' : 'edit-badge off';
+  document.getElementById('edit-btn').textContent = editMode ? 'Desactivar edición' : 'Activar edición';
+  if(selectedSys) renderPanel(selectedSys);
+  if(editMode) showToast('Modo edición activado — puedes agregar comentarios a cada plataforma');
+}
+
+function saveComment(){
+  if(!selectedSys) return;
+  const input = document.getElementById('comment-input');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!notes[selectedSys]) notes[selectedSys]=[];
+  const now = new Date();
+  notes[selectedSys].push({
+    text,
+    author: prompt('Tu nombre (para trazabilidad):') || 'Anónimo',
+    date: now.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  });
+  localStorage.setItem('vpaf_notes', JSON.stringify(notes));
+  input.value='';
+  renderPanel(selectedSys);
+  showToast('Comentario guardado ✓');
+}
+
+function clearComment(){ document.getElementById('comment-input').value=''; }
+
+function exportData(){
+  const data = {
+    version: "VPAF Ecosistema Map v1",
+    exported: new Date().toISOString(),
+    notes
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `vpaf_notas_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Exportado como JSON ✓');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
