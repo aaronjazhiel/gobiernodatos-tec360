@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPAF Ecosistema — Mind Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F6F2;
+  --navy: #003057;
+  --gold: #B5862A;
+  --gold-l: #F0C96A;
+  --text: #1A1A1A;
+  --muted: #888;
+  --border: #E0DDD5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  overflow: hidden;
+  width: 100vw; height: 100vh;
+  user-select: none;
+}
+
+/* TOPBAR */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 48px; background: var(--navy);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.brand { display: flex; align-items: center; gap: 8px; color: #fff; }
+.brand-logo {
+  width: 26px; height: 26px; background: var(--gold);
+  border-radius: 5px; display: flex; align-items: center;
+  justify-content: center; font-size: 10px; font-weight: 700;
+  color: var(--navy); letter-spacing: -.5px;
+}
+.brand-name { font-size: 13px; font-weight: 600; }
+.brand-sub { font-size: 10px; color: rgba(255,255,255,.5); margin-left: 4px; }
+.topbar-actions { display: flex; gap: 6px; align-items: center; }
+.tb-btn {
+  padding: 4px 12px; border-radius: 5px; font-size: 11px;
+  font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer;
+  font-weight: 600; transition: all .15s;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.85);
+}
+.tb-btn:hover { background: rgba(255,255,255,.16); }
+.tb-btn.active { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.tb-hint { font-size: 10px; color: rgba(255,255,255,.35); }
+
+/* CANVAS */
+#canvas {
+  position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+  cursor: grab;
+  background-image: radial-gradient(circle, #ccc9c0 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+#canvas:active { cursor: grabbing; }
+#canvas.edit-mode { cursor: crosshair; }
+#canvas.edit-mode:active { cursor: crosshair; }
+
+/* SVG + NODES */
+#map-svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.branch-path { fill: none; stroke-linecap: round; pointer-events: none; }
+
+.node-wrap {
+  position: absolute; transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+.node-box {
+  border-radius: 20px; padding: 7px 14px;
+  font-weight: 600; font-size: 12px; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+  transition: filter .15s, transform .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.node-box:hover { filter: brightness(1.08); transform: scale(1.04); }
+
+/* ROOT */
+.root-box {
+  background: var(--navy); color: #fff;
+  border-radius: 14px; padding: 12px 22px;
+  font-size: 15px; font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0,48,87,.35);
+  border: 2px solid var(--gold);
+}
+
+/* LEVEL 1 — system categories */
+.lvl1-box {
+  border-radius: 18px; padding: 7px 16px;
+  font-size: 13px; font-weight: 700; color: #fff;
+  box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  min-width: 120px; text-align: center;
+}
+
+/* LEVEL 2 — data items */
+.lvl2-box {
+  border-radius: 12px; padding: 5px 11px;
+  font-size: 11px; font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+/* LEAF — attributes */
+.leaf-box {
+  border-radius: 8px; padding: 3px 9px;
+  font-size: 10px; font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* TOOLTIP */
+.tooltip {
+  position: fixed; background: #fff; border-radius: 10px;
+  padding: 14px 16px; max-width: 280px; z-index: 500;
+  box-shadow: 0 8px 30px rgba(0,0,0,.15);
+  border: 1px solid var(--border);
+  pointer-events: none; opacity: 0; transition: opacity .15s;
+  font-size: 12px; line-height: 1.6; color: var(--text);
+}
+.tooltip.visible { opacity: 1; }
+.tt-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.tt-section { font-weight: 600; font-size: 10px; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; margin-top: 8px; margin-bottom: 3px; }
+.tt-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin: 2px 2px 0 0; }
+
+/* EDIT PANEL */
+.edit-panel {
+  position: fixed; right: 0; top: 48px; bottom: 0; width: 300px;
+  background: #fff; border-left: 1px solid var(--border);
+  display: none; flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0,0,0,.08); z-index: 200;
+}
+.edit-panel.open { display: flex; }
+.ep-header {
+  padding: 16px; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.ep-title { font-size: 13px; font-weight: 700; }
+.ep-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ep-body { flex: 1; overflow-y: auto; padding: 16px; }
+.ep-section { margin-bottom: 16px; }
+.ep-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+.ep-field {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 12px; font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text); background: #fff; transition: border-color .15s;
+  resize: vertical;
+}
+.ep-field:focus { outline: none; border-color: var(--gold); }
+.ep-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.ep-save {
+  flex: 1; padding: 8px; background: var(--navy); color: #fff;
+  border: none; border-radius: 8px; font-size: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; cursor: pointer;
+}
+.ep-save:hover { background: #004070; }
+.ep-close {
+  padding: 8px 12px; background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; color: var(--muted);
+}
+.tag-input-wrap { display: flex; flex-wrap: wrap; gap: 4px; border: 1.5px solid var(--border); border-radius: 8px; padding: 6px; min-height: 60px; }
+.tag-pill { background: #EAF3DE; color: #3B6D11; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.tag-pill .rm { cursor: pointer; opacity: .5; font-size: 13px; line-height: 1; }
+.tag-pill .rm:hover { opacity: 1; }
+.tag-add-input { border: none; outline: none; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif; min-width: 80px; flex: 1; }
+.tag-pill.brecha { background: #FCEBEB; color: #A32D2D; }
+.tag-pill.conn { background: #E6EFF9; color: #185FA5; }
+
+/* BREADCRUMB */
+.breadcrumb {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,.92); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 16px; font-size: 11px; color: var(--muted);
+  backdrop-filter: blur(8px); z-index: 300; pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.breadcrumb span { color: var(--navy); font-weight: 600; }
+
+/* ZOOM CONTROLS */
+.zoom-ctrl {
+  position: fixed; bottom: 16px; right: 16px; z-index: 300;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.zc-btn {
+  width: 32px; height: 32px; background: #fff; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm); color: var(--text); transition: background .1s;
+}
+.zc-btn:hover { background: var(--bg); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--navy); color: #fff; padding: 8px 16px; border-radius: 20px;
+  font-size: 12px; font-weight: 500; z-index: 999;
+  opacity: 0; transition: all .25s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* LEGEND */
+.legend {
+  position: fixed; left: 12px; bottom: 12px; z-index: 300;
+  background: rgba(255,255,255,.9); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 10px; color: var(--muted);
+  backdrop-filter: blur(8px);
+}
+.leg-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo">TEC</div>
+    <span class="brand-name">Ecosistema Digital VPAF</span>
+    <span class="brand-sub">MVP1 · Oct 2026</span>
+  </div>
+  <div class="topbar-actions">
+    <span class="tb-hint" id="mode-hint">Arrastra para navegar · Scroll para zoom · Clic para explorar</span>
+    <button class="tb-btn" id="edit-toggle" onclick="toggleEditMode()">✏ Editar nodo</button>
+    <button class="tb-btn" onclick="resetView()">⌖ Centrar</button>
+    <button class="tb-btn" onclick="exportJSON()">⬇ Exportar</button>
+    <button class="tb-btn" onclick="document.getElementById('import-file').click()">⬆ Importar</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)">
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div id="canvas">
+  <svg id="map-svg"></svg>
+  <div id="nodes-layer"></div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- EDIT PANEL -->
+<div class="edit-panel" id="edit-panel">
+  <div class="ep-header">
+    <div class="ep-title" id="ep-title">Editar plataforma</div>
+    <div class="ep-sub" id="ep-sub"></div>
+  </div>
+  <div class="ep-body">
+    <div class="ep-section">
+      <div class="ep-label">Descripción</div>
+      <textarea class="ep-field" id="ep-desc" rows="3" placeholder="Descripción de la plataforma..."></textarea>
+    </div>
+    <div class="ep-section">
+      <div class="ep-label">Funciones principales</div>
+      <div class="tag-input-wrap" id="ep-funcs-wrap"></div>
+      <div style="margin-top:5px">
+        <input class="ep-field" id="ep-func-input" placeholder="+ Agregar función y Enter" style="height:32px;resize:none">
+      </div>
+    </div>
+    <div class="ep-section">
+      <div class="ep-label">Datos maestros</div>
+      <div class="tag-input-wrap" id="ep-maestros-wrap"></div>
+      <div style="margin-top:5px">
+        <input class="ep-field" id="ep-maestro-input" placeholder="+ Agregar dato maestro y Enter" style="height:32px">
+      </div>
+    </div>
+    <div class="ep-section">
+      <div class="ep-label">Brechas / hallazgos</div>
+      <div class="tag-input-wrap" id="ep-brechas-wrap"></div>
+      <div style="margin-top:5px">
+        <input class="ep-field" id="ep-brecha-input" placeholder="+ Agregar brecha y Enter" style="height:32px">
+      </div>
+    </div>
+    <div class="ep-section">
+      <div class="ep-label">Notas del equipo</div>
+      <textarea class="ep-field" id="ep-notes" rows="4" placeholder="Observaciones, preguntas, acuerdos..."></textarea>
+    </div>
+  </div>
+  <div class="ep-footer">
+    <button class="ep-save" onclick="saveNode()">Guardar cambios</button>
+    <button class="ep-close" onclick="closePanel()">✕</button>
+  </div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">Selecciona un nodo para explorar · <span id="bc-text">Portal Unificado</span></div>
+
+<!-- ZOOM CONTROLS -->
+<div class="zoom-ctrl">
+  <button class="zc-btn" onclick="zoomBy(1.2)">+</button>
+  <button class="zc-btn" onclick="zoomBy(0.83)">−</button>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-row"><div class="leg-dot" style="background:#E8593C"></div>Nuevo habilitador</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#2D7D4E"></div>Habilitador transversal</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#1B5FAA"></div>Habilitador VPAF</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#003057"></div>Portal Unificado (nodo raíz)</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ======================================================
+// DATA MODEL
+// ======================================================
+let DATA = {
+  nodes: {
+    portal: {
+      label: "Portal Unificado",
+      color: "#003057", textColor: "#fff",
+      desc: "Núcleo de la experiencia digital del aprendedor VPAF. Punto único de entrada para descubrimiento, exploración, compra, inscripción y seguimiento de programas educativos.",
+      funciones: ["Catálogo y comparador de programas","Registro y autenticación del aprendedor","Proceso de compra con VTEX","Facturación vía Interfactura","Estado de cuenta académico y financiero","Historial de pedidos e insignias","Bot conversacional Tec.bot","Encuestas NPS Qualtrics / Tec.feedback"],
+      maestros: ["ID Usuario (UUID)","Email (llave federada)","PIDEN (Arroba MDM)","Nombre / Apellidos","CURP","RFC","Teléfono / Mobile"],
+      brechas: ["Sub-Afiliación Z-Aprendedor PENDIENTE (bloqueante MVP1)","3 portales simultáneos en octubre (C-22)","Catálogos SEA manuales al CMS abril (C-21)"],
+      notes: "",
+      release: "R1–R5", type: "root"
+    },
+    idm: {
+      label: "Identity Manager",
+      color: "#6B47DC", textColor: "#fff",
+      desc: "Sistema IAM To-Be. Repositorio central con un registro único por persona. Maneja SSO federado hacia todos los habilitadores.",
+      funciones: ["Creación de identidad digital del aprendedor","SSO federado a todos los habilitadores","Validación email (EmailConfirmed) y MFA/OTP","Propagación de identidad al MDM (PIDEN)"],
+      maestros: ["UUID (PK)","Email","Username / login_id","Mobile","EmailConfirmed","CURP","PasswordHash"],
+      brechas: ["Modelo To-Be pendiente de implementación","Sin conexión RENAPO para CURP"],
+      notes: "", release: "R4", type: "transversal"
+    },
+    mdm: {
+      label: "MDM Central",
+      color: "#7F77DD", textColor: "#fff",
+      desc: "Master Data Management institucional. Fuente única de verdad del Dato Maestro de Persona Física. Gestiona el Golden Record.",
+      funciones: ["Asignación del PIDEN (Arroba)","Mantenimiento del Golden Record","Gestión de catálogos institucionales","Validación y deduplicación de registros"],
+      maestros: ["PIDEN (Arroba) — llave transversal","Afiliación (Cat00001)","Sub-Afiliación Z-Aprendedor (Cat00002) — PENDIENTE","Tipo de Correo (Cat00003)","Sexo (Cat00005)","Tipo de Domicilio (Cat00007)"],
+      brechas: ["MDM desconectado del diagrama MVP1 (C-19)","Sub-Afiliación Z-Aprendedor sin definir — bloqueante VTEX y Portal"],
+      notes: "", release: "R4", type: "transversal"
+    },
+    sea: {
+      label: "SEA (Gest. Académica)",
+      color: "#1B5FAA", textColor: "#fff",
+      desc: "Sistema de Administración Escolar VPAF. Fuente del catálogo de programas académicos. Gestiona inscripción formal y acreditación.",
+      funciones: ["Catálogo de programas académicos (fuente de verdad)","Gestión de inscripciones y expediente","Acreditación y transferencia de calificaciones","Sincronización con Cypher LXP y TLG"],
+      maestros: ["ID Programa (clave SEA)","Nombre del Programa","Tipo de Programa","Línea de Negocio","Formato / Modalidad","Campus / Sede","Escuela","Período / Cohort"],
+      brechas: ["Catálogos SEA cargados manualmente al CMS abril (C-21)","Sin integración automática SEA → Portal en MVP1","Transferencia manual calificaciones LMS → SEA"],
+      notes: "", release: "R4", type: "vpaf"
+    },
+    lxp: {
+      label: "LXP (Cypher Learning)",
+      color: "#1B5FAA", textColor: "#fff",
+      desc: "Learning Experience Platform. Plataforma de aprendizaje en línea. Gestiona contenidos, progreso del aprendedor y acreditación de módulos.",
+      funciones: ["Entrega de contenidos en línea","Gestión del progreso del aprendedor","Datos de acreditación hacia SEA","Activación de encuestas NPS (Tec.feedback)"],
+      maestros: ["ID Aprendedor (Cypher)","Email (login_id)","ID Curso / Módulo","Estado de Progreso","Calificación Final"],
+      brechas: ["Transferencia calificaciones Cypher → SEA requiere integración pendiente"],
+      notes: "", release: "R4", type: "vpaf"
+    },
+    lms: {
+      label: "LMS (TLG)",
+      color: "#1B5FAA", textColor: "#fff",
+      desc: "Learning Management System TLG para programas U4P. Integrado con el Portal para visualización de progreso.",
+      funciones: ["Gestión de cursos y contenidos","Progreso y avance del aprendedor","Transferencia de acreditación a SEA","Activación NPS Tec.feedback post-módulo"],
+      maestros: ["ID Aprendedor (TLG)","Email","ID Curso","Estado Módulo","Calificación"],
+      brechas: ["Transferencia manual calificaciones TLG → SEA (hallazgo arquitectónico)"],
+      notes: "", release: "R3", type: "vpaf"
+    },
+    pase: {
+      label: "PASE (Expertos)",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Plataforma de Administración y Seguimiento de Expertos. Repositorio de perfiles de instructores para el Portal.",
+      funciones: ["Registro y gestión del perfil del experto","Exposición de semblanza y foto (Base64)","Sincronización con CRM Salesforce","NPS histórico y ranking del experto"],
+      maestros: ["Academia_Id (PK)","Nombre / Apellidos","Email (llave con SEA y Qualtrics)","Foto Base64","NPS histórico","Ranking consultor"],
+      brechas: ["Token PASE en querystring — riesgo de seguridad","Sin ETL PASE → Portal en MVP1","Infraestructura legacy IIS 10 / SQL Server 2012"],
+      notes: "", release: "R1, R3", type: "new"
+    },
+    crm: {
+      label: "CRM (Salesforce)",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "CRM institucional. Gestiona el ciclo del prospecto y aprendedor. HubSpot recibe leads antes que Salesforce (C-18 arquitectónico).",
+      funciones: ["Gestión del prospecto y oportunidad de venta","Flujos de remarketing carrito abandonado","Sincronización del perfil (baja a MDM/EBX)","Visibilidad del estado de compra al Portal"],
+      maestros: ["Rol / Subrol Persona Física / Moral","Datos Generales (Nombre, CURP, RFC)","Datos de Contacto (email, teléfono)","ID Oportunidad (IdOportunidad)","Aviso de Privacidad"],
+      brechas: ["HubSpot recibe leads antes que Salesforce (C-18) sin documentar completamente","Coexistencia datos limpios con legacy (DP-01)"],
+      notes: "", release: "R3", type: "transversal"
+    },
+    vtex: {
+      label: "E-Commerce (VTEX)",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Motor headless de e-commerce. Post-compra: webhook → Bus ESB IBM → Gestor de Pagos → Banner/SAP.",
+      funciones: ["Catálogo de programas (Productos y SKUs)","Checkout con pago Open Pay embebido","Gestión de órdenes y estados de pedido","Descuentos y cupones por audiencia","Recuperación de carritos abandonados"],
+      maestros: ["ID Producto VTEX (ProductId)","ID SKU (SkuId)","Nombre del Producto / SKU","IsActive (Sold Out)","ID Pedido VTEX (orderId)","Estado de Orden","IDP-10045 (atributo cliente MDM)"],
+      brechas: ["DP-07: Definición catálogo SKU vs nombre programa — PENDIENTE","ID VTEX ≠ ID Gestor de Pagos — sin tabla correspondencia en FUD (G-01 CRÍTICA)"],
+      notes: "", release: "R3", type: "new"
+    },
+    fud: {
+      label: "FUD (Data Warehouse)",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Fuente Única de Datos. Data Warehouse/Data Lake VPAF. Consolida datos de todas las plataformas para analítica institucional.",
+      funciones: ["Consolidación datos transaccionales VTEX","Integración Banner TEC/UTM historial financiero","Analítica de comportamiento (Clarity, Portal)","Datos de aprendizaje LXP, LMS, SEA","Exposición al Portal (historial compras, aprendizaje)"],
+      maestros: ["ID Pedido VTEX (orderId)","ID Pedido Gestor (folio Banner)","ID Programa / SKU","ID Aprendedor / PIDEN","Estado de Orden VTEX","Monto transaccional"],
+      brechas: ["G-01 CRÍTICA: Sin tabla correspondencia orderId VTEX ↔ ID Gestor","G-02 CRÍTICA: Estado de Orden VTEX no llega al FUD","G-03: Catálogo VTEX no llega al FUD","G-04: Carrito abandonado sin integración","Modelo de datos pendiente acuerdo Adrián Tijerina (deadline jun 2026)"],
+      notes: "", release: "R4–R5", type: "new"
+    },
+    middleware: {
+      label: "Middleware",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Middleware de nueva generación (Middleware 26). Sin uso definido hasta blueprint E-Commerce listo (C-14 arquitectónico).",
+      funciones: ["Orquestación mensajes Portal ↔ VTEX","Propagación datos compra hacia SEA y Cypher","Log de transacciones para auditoría"],
+      maestros: ["ID Pedido VTEX","Estado de Orden","ID Aprendedor / PIDEN","ID Programa / SKU"],
+      brechas: ["Sin uso definido hasta blueprint E-Commerce listo (C-14)","Rol exacto vs. Middleware ESB IBM no delimitado"],
+      notes: "", release: "R3", type: "new"
+    },
+    qualtrics: {
+      label: "Qualtrics",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "Plataforma de encuestas y experiencia del cliente. Gestiona NPS y satisfacción del aprendedor e instructor.",
+      funciones: ["Encuestas de satisfacción NPS / CSAT","Encuestas al experto / instructor","Envío de resultados e insights al Portal","Integración con PASE para evaluación del experto"],
+      maestros: ["studentId / studentEmail","teacherId / teacherEmail","IdOportunidad","TipoEncuesta","ConsiderarNPS","FechaEncuesta"],
+      brechas: [],
+      notes: "", release: "R3, R4", type: "transversal"
+    },
+    facturador: {
+      label: "Facturador (Interfactura)",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "Sistema de facturación electrónica CFDI. El Portal solicita emisión de factura post-pago.",
+      funciones: ["Emisión CFDI electrónico post-pago","Devolución PDF/XML de factura al Portal","Integración con Banner TEC/UTM"],
+      maestros: ["RFC","Razón Social / Nombre","Monto","Concepto (Programa)","Uso de CFDI","Correo electrónico"],
+      brechas: [],
+      notes: "", release: "R3", type: "transversal"
+    },
+    banner: {
+      label: "Banner TEC / UTM",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "ERP académico-financiero TEC de Monterrey y UTM. Fuente del estado de cuenta académico y financiero del aprendedor.",
+      funciones: ["Estado de cuenta académico y financiero","Registro de transacciones Gestor de Pagos","Emisión CFDI vía Interfactura","Sincronización con SAP/HANA"],
+      maestros: ["Clave de Concepto (equivalente ProductId VTEX)","ID Estudiante Banner","Monto Transacción","Folio de Facturación (ID Gestor)"],
+      brechas: ["ID Banner ≠ ID VTEX — requiere tabla de correspondencia en FUD"],
+      notes: "", release: "R3, R4", type: "transversal"
+    },
+    tecbot: {
+      label: "Tec.bot VPAF",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Bot conversacional Azure Bot Service embebido en el Portal como widget Angular/Web Component.",
+      funciones: ["Asistencia conversacional visitante y aprendedor","Escalamiento a tickets ServiceNow","Skills personalizados: estado de cuenta, progreso (R5)","Integración con IA (Semantic Kernel)"],
+      maestros: ["Direct Line Token (efímero)","userAuthStatus","ID Conversación"],
+      brechas: ["Skills con datos del aprendedor son R5 (no R2)","Dependencia LUIS → Semantic Kernel"],
+      notes: "", release: "R2, R5", type: "new"
+    },
+    searchbar: {
+      label: "Search Bar (IA)",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Componente evolucionado a recomendador/perfilador. Frontend: equipo Portal. Backend APIs: Manuel Terán. No sube al API Manager en MVP1.",
+      funciones: ["Búsqueda semántica de programas","Perfilamiento y recomendación (Tec.gpt)","Consulta contenido CMS Drupal","Guardado historial de búsqueda"],
+      maestros: ["Query del usuario","Historial de búsqueda","Perfil de preferencias inferido"],
+      brechas: ["Conversación frontend-backend sin cerrar al inicio del sprint","No sube al API Manager — sin inventario formal"],
+      notes: "", release: "R2, R4", type: "new"
+    },
+    cms: {
+      label: "CMS (Drupal)",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "Content Management System headless. Drupal expone contenido al Portal vía JSON:API GET.",
+      funciones: ["Gestión de contenido editorial del Portal","Catálogo visual de programas (imágenes)","Fichas técnicas e información institucional","Fuente de contenido para Search Bar"],
+      maestros: ["ID Nodo (Drupal)","Tipo de contenido (bundle)","Slug / URL","Imagen de programa","Texto de descripción"],
+      brechas: ["Catálogos SEA se cargan manualmente al CMS (C-21) — sin integración automática SEA → CMS"],
+      notes: "", release: "R1, R3", type: "transversal"
+    },
+    tecfeedback: {
+      label: "Tec.feedback",
+      color: "#E8593C", textColor: "#fff",
+      desc: "Sistema de retroalimentación NPS in-app y por correo. Integrado con LXP, LMS, SEA y Portal.",
+      funciones: ["Encuestas NPS in-app post-módulo/programa","Encuestas NPS por correo electrónico","Sincronización resultados con SEA y FUD"],
+      maestros: ["ID Aprendedor","ID Programa / Módulo","Fecha de fin de módulo","Respuesta NPS","Comentario abierto"],
+      brechas: [],
+      notes: "", release: "R5", type: "new"
+    },
+    servicenow: {
+      label: "ServiceNow",
+      color: "#2D7D4E", textColor: "#fff",
+      desc: "Plataforma ITSM. Recibe tickets escalados desde Tec.bot cuando no puede resolver una consulta.",
+      funciones: ["Gestión de tickets de soporte del aprendedor","Notificación actualización de ticket al bot","Escalamiento de incidencias del ecosistema"],
+      maestros: ["ID Ticket","Descripción del problema","Estado del ticket","Aprendedor (email)","Fecha de resolución"],
+      brechas: [],
+      notes: "", release: "R2, R5", type: "transversal"
+    }
+  },
+  // Connections: {from, to, label, type: 'in'|'out', release}
+  edges: [
+    {from:"portal",to:"idm",label:"Datos registro → IAM",release:"R4"},
+    {from:"idm",to:"portal",label:"Token sesión + UUID",release:"R4"},
+    {from:"idm",to:"mdm",label:"Propagación perfil → Golden Record",release:"R4"},
+    {from:"mdm",to:"portal",label:"Catálogos maestros",release:"R4"},
+    {from:"portal",to:"vtex",label:"Compra → E-Commerce",release:"R3"},
+    {from:"vtex",to:"middleware",label:"Webhook post-compra",release:"R3"},
+    {from:"middleware",to:"portal",label:"Confirmación inscripción",release:"R3"},
+    {from:"portal",to:"crm",label:"Datos prospecto (registro)",release:"R3"},
+    {from:"crm",to:"portal",label:"Estado oportunidad",release:"R3"},
+    {from:"pase",to:"portal",label:"Semblanza expertos",release:"R1"},
+    {from:"portal",to:"lms",label:"Datos inscripción",release:"R3"},
+    {from:"lms",to:"portal",label:"Progreso aprendizaje",release:"R3"},
+    {from:"portal",to:"lxp",label:"Datos inscripción LXP",release:"R4"},
+    {from:"lxp",to:"portal",label:"Progreso + certificados",release:"R4"},
+    {from:"portal",to:"sea",label:"Datos académicos",release:"R4"},
+    {from:"sea",to:"portal",label:"Inscripción confirmada",release:"R4"},
+    {from:"portal",to:"banner",label:"Consulta estado cuenta",release:"R3"},
+    {from:"banner",to:"portal",label:"Estado cuenta académico",release:"R3"},
+    {from:"portal",to:"facturador",label:"Solicitud CFDI",release:"R3"},
+    {from:"facturador",to:"portal",label:"PDF/XML factura",release:"R3"},
+    {from:"portal",to:"qualtrics",label:"Contexto aprendedor NPS",release:"R3"},
+    {from:"qualtrics",to:"portal",label:"Resultados NPS",release:"R3"},
+    {from:"cms",to:"portal",label:"Contenido editorial JSON:API",release:"R1"},
+    {from:"portal",to:"tecbot",label:"Direct Line Token (BFF)",release:"R2"},
+    {from:"tecbot",to:"portal",label:"Widget conversacional",release:"R2"},
+    {from:"tecbot",to:"servicenow",label:"Escalamiento ticket",release:"R2"},
+    {from:"portal",to:"searchbar",label:"Contexto usuario",release:"R4"},
+    {from:"searchbar",to:"portal",label:"Recomendaciones IA",release:"R4"},
+    {from:"fud",to:"portal",label:"Historial compras + aprendizaje",release:"R5"},
+    {from:"portal",to:"fud",label:"Eventos comportamiento",release:"R5"},
+    {from:"vtex",to:"fud",label:"Órdenes + catálogo (BRECHAS G-01–G-04)",release:"pendiente"},
+    {from:"portal",to:"tecfeedback",label:"Contexto encuesta NPS",release:"R5"},
+    {from:"tecfeedback",to:"portal",label:"Resultados NPS in-app",release:"R5"},
+  ]
+};
+
+// Try to load saved data
+try {
+  const saved = localStorage.getItem('vpaf_mindmap_data');
+  if (saved) DATA = JSON.parse(saved);
+} catch(e){}
+
+// ======================================================
+// LAYOUT — radial positions
+// ======================================================
+const CX = 2000, CY = 1500; // virtual canvas center
+const POSITIONS = {
+  portal:     {x: CX,     y: CY},
+  // Left arc (Identity + MDM)
+  idm:        {x: CX-500, y: CY-320},
+  mdm:        {x: CX-560, y: CY-80},
+  // Top arc (SEA, LXP, LMS)
+  sea:        {x: CX-160, y: CY-420},
+  lxp:        {x: CX+140, y: CY-440},
+  lms:        {x: CX+400, y: CY-360},
+  // Right arc (VTEX, Middleware, CRM)
+  vtex:       {x: CX+540, y: CY-140},
+  middleware: {x: CX+580, y: CY+100},
+  crm:        {x: CX+480, y: CY+320},
+  // Bottom arc (Banner, Facturador, FUD)
+  banner:     {x: CX+200, y: CY+440},
+  facturador: {x: CX-120, y: CY+460},
+  fud:        {x: CX-380, y: CY+380},
+  // Bottom-left (Qualtrics, PASE)
+  qualtrics:  {x: CX-540, y: CY+220},
+  pase:       {x: CX-580, y: CY-260},
+  // AI nodes
+  tecbot:     {x: CX+200, y: CY-240},
+  searchbar:  {x: CX+80,  y: CY+260},
+  cms:        {x: CX-300, y: CY-380},
+  tecfeedback:{x: CX+360, y: CY+200},
+  servicenow: {x: CX+480, y: CY-300},
+};
+
+// ======================================================
+// VIEWPORT STATE
+// ======================================================
+let vp = { x: 0, y: 0, scale: 0.38 };
+let dragging = false, lastMouse = {x:0,y:0};
+let editMode = false;
+let selectedNode = null;
+
+// Editing temp state
+let editingKey = null;
+let epFuncs = [], epMaestros = [], epBrechas = [];
+
+// ======================================================
+// RENDER
+// ======================================================
+const TYPE_COLORS = {
+  root: {bg:"#003057", txt:"#fff"},
+  new: {bg:"#E8593C", txt:"#fff"},
+  transversal: {bg:"#2D7D4E", txt:"#fff"},
+  vpaf: {bg:"#1B5FAA", txt:"#fff"}
+};
+const REL_COLORS = {R1:"#185FA5",R2:"#3B6D11",R3:"#854F0B",R4:"#534AB7",R5:"#0F6E56",pendiente:"#A32D2D"};
+
+function nodeColor(key) {
+  const n = DATA.nodes[key];
+  if (!n) return "#888";
+  const tc = TYPE_COLORS[n.type] || TYPE_COLORS.new;
+  return n.color || tc.bg;
+}
+
+function render() {
+  const layer = document.getElementById('nodes-layer');
+  const svg = document.getElementById('map-svg');
+  layer.innerHTML = '';
+  svg.innerHTML = '';
+
+  // Draw edges
+  const edgeGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+  DATA.edges.forEach(e => {
+    const fp = POSITIONS[e.from], tp = POSITIONS[e.to];
+    if (!fp || !tp) return;
+    const color = REL_COLORS[e.release] || "#aaa";
+    const mx = (fp.x + tp.x) / 2 + (Math.random() > .5 ? 40 : -40);
+    const my = (fp.y + tp.y) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const d = `M${fp.x},${fp.y} Q${mx},${my} ${tp.x},${tp.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', e.from==='portal'||e.to==='portal' ? 3.5 : 2);
+    path.setAttribute('opacity', e.from==='portal'||e.to==='portal' ? 0.55 : 0.35);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-dasharray', e.release==='pendiente'?'6,4':'none');
+    edgeGroup.appendChild(path);
+  });
+  svg.appendChild(edgeGroup);
+
+  // Draw nodes
+  Object.entries(POSITIONS).forEach(([key, pos]) => {
+    const n = DATA.nodes[key];
+    if (!n) return;
+    const el = document.createElement('div');
+    el.className = 'node-wrap';
+    el.id = 'nw-' + key;
+    el.style.left = pos.x + 'px';
+    el.style.top = pos.y + 'px';
+
+    const isRoot = key === 'portal';
+    const isSelected = selectedNode === key;
+    const color = nodeColor(key);
+    const hasBreach = n.brechas && n.brechas.length > 0;
+
+    el.innerHTML = `<div class="node-box" style="
+      background: ${color};
+      color: ${n.textColor || '#fff'};
+      font-size: ${isRoot ? 15 : 12}px;
+      padding: ${isRoot ? '12px 22px' : '7px 14px'};
+      border-radius: ${isRoot ? 14 : 20}px;
+      border: ${isSelected ? '2.5px solid #F0C96A' : '2px solid transparent'};
+      box-shadow: ${isSelected ? '0 0 0 3px rgba(240,201,106,.3), 0 4px 16px rgba(0,0,0,.2)' : '0 2px 8px rgba(0,0,0,.15)'};
+      outline: none;
+    " title="${n.label}">
+      ${hasBreach ? '<span style="margin-right:4px;font-size:10px">⚠</span>' : ''}
+      ${n.label}
+      ${n.notes ? '<span style="margin-left:5px;font-size:9px;opacity:.7">💬</span>' : ''}
+    </div>`;
+
+    el.addEventListener('click', (e) => { e.stopPropagation(); onNodeClick(key); });
+    el.addEventListener('mouseenter', (e) => showTooltip(key, e));
+    el.addEventListener('mouseleave', hideTooltip);
+    layer.appendChild(el);
+  });
+
+  applyViewport();
+}
+
+function applyViewport() {
+  const layer = document.getElementById('nodes-layer');
+  const svg = document.getElementById('map-svg');
+  const t = `translate(${vp.x}px, ${vp.y}px) scale(${vp.scale})`;
+  layer.style.transform = t;
+  layer.style.transformOrigin = '0 0';
+  svg.style.transform = t;
+  svg.style.transformOrigin = '0 0';
+}
+
+// ======================================================
+// TOOLTIP
+// ======================================================
+function showTooltip(key, e) {
+  const n = DATA.nodes[key];
+  if (!n) return;
+  const tt = document.getElementById('tooltip');
+  const typeLabel = {root:'Nodo raíz',new:'Nuevo habilitador',transversal:'Habilitador transversal',vpaf:'Habilitador VPAF'}[n.type]||'';
+  const relColor = "#666";
+  let html = `<div class="tt-title">${n.label}</div>`;
+  html += `<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;background:${nodeColor(key)}20;color:${nodeColor(key)}">${typeLabel}</span>`;
+  html += `<div class="tt-section">Descripción</div><div style="font-size:11px;line-height:1.5">${n.desc}</div>`;
+  if (n.funciones.length) {
+    html += `<div class="tt-section">Funciones</div>`;
+    html += n.funciones.slice(0,3).map(f=>`<div style="font-size:10px;margin-bottom:2px">▶ ${f}</div>`).join('');
+    if (n.funciones.length > 3) html += `<div style="font-size:10px;color:var(--muted)">+${n.funciones.length-3} más...</div>`;
+  }
+  if (n.brechas.length) {
+    html += `<div class="tt-section">⚠ Brechas</div>`;
+    html += `<span class="tt-tag" style="background:#FCEBEB;color:#A32D2D">${n.brechas.length} brecha${n.brechas.length>1?'s':''} identificada${n.brechas.length>1?'s':''}</span>`;
+  }
+  html += `<div style="margin-top:8px;font-size:10px;color:var(--muted)">Release: <strong>${n.release}</strong> · Clic para editar</div>`;
+  tt.innerHTML = html;
+  const x = Math.min(e.clientX + 12, window.innerWidth - 300);
+  const y = Math.min(e.clientY + 12, window.innerHeight - 300);
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+  tt.classList.add('visible');
+}
+function hideTooltip() { document.getElementById('tooltip').classList.remove('visible'); }
+
+// ======================================================
+// NODE CLICK
+// ======================================================
+function onNodeClick(key) {
+  selectedNode = key;
+  document.getElementById('bc-text').textContent = DATA.nodes[key]?.label || key;
+
+  if (editMode) {
+    openEditPanel(key);
+  }
+  render();
+}
+
+// ======================================================
+// EDIT PANEL
+// ======================================================
+function openEditPanel(key) {
+  editingKey = key;
+  const n = DATA.nodes[key];
+  if (!n) return;
+  document.getElementById('ep-title').textContent = n.label;
+  document.getElementById('ep-sub').textContent = {root:'Nodo raíz',new:'Nuevo habilitador',transversal:'Habilitador transversal',vpaf:'Habilitador VPAF'}[n.type]||'';
+  document.getElementById('ep-desc').value = n.desc || '';
+  document.getElementById('ep-notes').value = n.notes || '';
+  epFuncs = [...(n.funciones||[])];
+  epMaestros = [...(n.maestros||[])];
+  epBrechas = [...(n.brechas||[])];
+  renderTagList('ep-funcs-wrap', epFuncs, 'func');
+  renderTagList('ep-maestros-wrap', epMaestros, 'master');
+  renderTagList('ep-brechas-wrap', epBrechas, 'brecha');
+  document.getElementById('edit-panel').classList.add('open');
+}
+
+function renderTagList(wrapId, arr, cls) {
+  const wrap = document.getElementById(wrapId);
+  wrap.innerHTML = arr.map((t,i) =>
+    `<span class="tag-pill ${cls}">${t}<span class="rm" onclick="removeTag('${wrapId}',${i},'${cls}')">×</span></span>`
+  ).join('');
+}
+
+function removeTag(wrapId, idx, cls) {
+  if (wrapId === 'ep-funcs-wrap') epFuncs.splice(idx,1);
+  if (wrapId === 'ep-maestros-wrap') epMaestros.splice(idx,1);
+  if (wrapId === 'ep-brechas-wrap') epBrechas.splice(idx,1);
+  renderTagList(wrapId, wrapId==='ep-funcs-wrap'?epFuncs:wrapId==='ep-maestros-wrap'?epMaestros:epBrechas, cls);
+}
+
+['ep-func-input','ep-maestro-input','ep-brecha-input'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const v = e.target.value.trim();
+    if (!v) return;
+    if (id==='ep-func-input') { epFuncs.push(v); renderTagList('ep-funcs-wrap', epFuncs, 'func'); }
+    if (id==='ep-maestro-input') { epMaestros.push(v); renderTagList('ep-maestros-wrap', epMaestros, 'master'); }
+    if (id==='ep-brecha-input') { epBrechas.push(v); renderTagList('ep-brechas-wrap', epBrechas, 'brecha'); }
+    e.target.value = '';
+  });
+});
+
+function saveNode() {
+  if (!editingKey) return;
+  const n = DATA.nodes[editingKey];
+  n.desc = document.getElementById('ep-desc').value;
+  n.notes = document.getElementById('ep-notes').value;
+  n.funciones = [...epFuncs];
+  n.maestros = [...epMaestros];
+  n.brechas = [...epBrechas];
+  localStorage.setItem('vpaf_mindmap_data', JSON.stringify(DATA));
+  render();
+  showToast('✓ Cambios guardados en ' + n.label);
+}
+function closePanel() { document.getElementById('edit-panel').classList.remove('open'); }
+
+// ======================================================
+// EDIT MODE TOGGLE
+// ======================================================
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn = document.getElementById('edit-toggle');
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? '✏ Editando (clic en nodo)' : '✏ Editar nodo';
+  document.getElementById('mode-hint').textContent = editMode
+    ? 'Haz clic en cualquier nodo para editar sus datos'
+    : 'Arrastra para navegar · Scroll para zoom · Clic para explorar';
+  if (!editMode) closePanel();
+  showToast(editMode ? 'Modo edición activo — clic en un nodo para editarlo' : 'Modo lectura');
+}
+
+// ======================================================
+// DRAG & ZOOM
+// ======================================================
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('mousedown', e => {
+  if (e.target.closest('.node-wrap')) return;
+  dragging = true; lastMouse = {x:e.clientX,y:e.clientY};
+  canvas.style.cursor = 'grabbing';
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  vp.x += e.clientX - lastMouse.x;
+  vp.y += e.clientY - lastMouse.y;
+  lastMouse = {x:e.clientX,y:e.clientY};
+  applyViewport();
+});
+document.addEventListener('mouseup', () => {
+  dragging = false;
+  canvas.style.cursor = editMode ? 'crosshair' : 'grab';
+});
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.91;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  vp.x = mx - (mx - vp.x) * factor;
+  vp.y = my - (my - vp.y) * factor;
+  vp.scale *= factor;
+  vp.scale = Math.max(0.1, Math.min(3, vp.scale));
+  applyViewport();
+}, {passive:false});
+
+function zoomBy(f) {
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  vp.x = cx - (cx - vp.x) * f;
+  vp.y = cy - (cy - vp.y) * f;
+  vp.scale = Math.max(0.1, Math.min(3, vp.scale * f));
+  applyViewport();
+}
+
+function resetView() {
+  const cw = window.innerWidth, ch = window.innerHeight - 48;
+  vp.scale = 0.38;
+  vp.x = cw/2 - CX * vp.scale;
+  vp.y = ch/2 - CY * vp.scale + 24;
+  applyViewport();
+}
+
+// ======================================================
+// EXPORT / IMPORT
+// ======================================================
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `vpaf_ecosystem_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('✓ Exportado como JSON');
+}
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      DATA = JSON.parse(ev.target.result);
+      localStorage.setItem('vpaf_mindmap_data', JSON.stringify(DATA));
+      render();
+      showToast('✓ Datos importados correctamente');
+    } catch(err) { showToast('⚠ Error al importar JSON'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ======================================================
+// TOAST
+// ======================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ======================================================
+// INIT
+// ======================================================
+resetView();
+render();
+
+// Touch support
+let lastTouchDist = 0;
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    dragging = true;
+    lastMouse = {x:e.touches[0].clientX,y:e.touches[0].clientY};
+  } else if (e.touches.length === 2) {
+    dragging = false;
+    lastTouchDist = Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+  }
+},{passive:true});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 1 && dragging) {
+    vp.x += e.touches[0].clientX - lastMouse.x;
+    vp.y += e.touches[0].clientY - lastMouse.y;
+    lastMouse = {x:e.touches[0].clientX,y:e.touches[0].clientY};
+    applyViewport();
+  } else if (e.touches.length === 2) {
+    const dist = Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+    const f = dist / lastTouchDist;
+    zoomBy(f); lastTouchDist = dist;
+  }
+},{passive:false});
+canvas.addEventListener('touchend', () => { dragging = false; },{passive:true});
+</script>
+</body>
+</html>
