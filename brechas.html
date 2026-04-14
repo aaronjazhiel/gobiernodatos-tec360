@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VPAF — Análisis de Brechas y Preguntas Abiertas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#002847; --gold:#B5862A; --gold-l:#F0C96A;
+  --bg:#F4F2EC; --white:#FFFFFF; --border:#E2DDD4;
+  --text:#1A1A1A; --muted:#787268; --light:#A09890;
+  --n1:#C62828; --n1-l:#FFEBEE; --n1-m:#FFCDD2;
+  --n2:#E65100; --n2-l:#FFF3E0; --n2-m:#FFE0B2;
+  --n3:#388E3C; --n3-l:#E8F5E9; --n3-m:#C8E6C9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:300;background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:2px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:30px;height:30px;border-radius:6px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--navy)}
+.brand-name{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#fff}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.4);margin-left:4px}
+
+/* SECTION TABS (site-wide nav) */
+.section-tabs{display:flex;gap:0;background:var(--white);border-bottom:1px solid var(--border);padding:0 20px}
+.section-tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center}
+.section-tab:hover{color:var(--text)}
+.section-tab.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600}
+.tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;font-size:10px;font-weight:600;margin-left:6px;padding:0 5px}
+.section-tab.active .tab-count{background:var(--gold);color:var(--navy)}
+.section-tab:not(.active) .tab-count{background:var(--bg);color:var(--muted)}
+
+/* VIEW TABS (internal sub-tabs) */
+.view-tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 20px}
+.view-tab{padding:11px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.view-tab:hover{color:var(--text)}
+.view-tab.active{color:var(--navy);border-bottom-color:var(--gold)}
+.vt-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;font-size:10px;font-weight:700;margin-left:5px;padding:0 5px;background:var(--bg);color:var(--muted)}
+.view-tab.active .vt-badge{background:var(--gold);color:var(--navy)}
+
+/* HERO */
+.hero{background:var(--navy);padding:28px 24px 24px;border-bottom:1px solid rgba(255,255,255,.08)}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-.5px;margin-bottom:5px}
+.hero p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;max-width:680px}
+.stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;display:flex;flex-direction:column;gap:1px}
+.stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:18px}
+.stat-lbl{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+
+/* LEVEL LEGEND */
+.level-legend{display:flex;gap:8px;padding:12px 24px;background:var(--white);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.level-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.level-pill.n1{background:var(--n1-l);color:var(--n1);border-color:var(--n1-m)}
+.level-pill.n2{background:var(--n2-l);color:var(--n2);border-color:var(--n2-m)}
+.level-pill.n3{background:var(--n3-l);color:var(--n3);border-color:var(--n3-m)}
+.level-pill:not(.active){opacity:.55}
+.level-pill.active{opacity:1;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.lp-dot{width:8px;height:8px;border-radius:50%}
+.n1 .lp-dot{background:var(--n1)} .n2 .lp-dot{background:var(--n2)} .n3 .lp-dot{background:var(--n3)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.filter-label{font-size:10px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.5px}
+.filter-btn{padding:5px 12px;border-radius:14px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.filter-btn:hover{border-color:var(--navy);color:var(--text)}
+.filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+#search{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;width:200px;transition:all .2s;margin-left:auto}
+#search:focus{outline:none;border-color:var(--gold);width:260px}
+
+/* ── VIEW: PREGUNTAS ─────────────────────────────────────────── */
+#view-preguntas{display:block}
+#view-brechas{display:none}
+
+.content{padding:20px 24px;max-width:1100px;margin:0 auto}
+
+/* QUESTION CARD */
+.q-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:10px;overflow:hidden;transition:box-shadow .2s;
+  animation:fadeUp .25s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.q-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.q-card.n1{border-left:4px solid var(--n1)}
+.q-card.n2{border-left:4px solid var(--n2)}
+.q-card.n3{border-left:4px solid var(--n3)}
+
+.q-header{display:flex;align-items:flex-start;gap:12px;padding:14px 16px 10px;cursor:pointer}
+.q-num{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-weight:500;font-size:11px;
+  flex-shrink:0;
+}
+.n1 .q-num{background:var(--n1-l);color:var(--n1)}
+.n2 .q-num{background:var(--n2-l);color:var(--n2)}
+.n3 .q-num{background:var(--n3-l);color:var(--n3)}
+
+.q-content{flex:1}
+.q-pregunta{font-size:13px;font-weight:500;color:var(--text);line-height:1.5}
+.q-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tag-macro{background:#EDE7F6;color:#5E35B1}
+.tag-hab{background:#E3F2FD;color:#1565C0}
+.tag-nivel-1{background:var(--n1-l);color:var(--n1)}
+.tag-nivel-2{background:var(--n2-l);color:var(--n2)}
+.tag-nivel-3{background:var(--n3-l);color:var(--n3)}
+
+.q-toggle{font-size:18px;color:var(--muted);transition:transform .2s;flex-shrink:0;margin-top:2px}
+.q-card.open .q-toggle{transform:rotate(180deg)}
+
+/* EXPANDED BODY */
+.q-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);background:var(--bg)}
+.q-card.open .q-body{display:block}
+
+.q-votes{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:12px 0 10px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:10px;
+}
+.vote-chip{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;
+}
+.vote-1{background:var(--n1-l);color:var(--n1)}
+.vote-2{background:var(--n2-l);color:var(--n2)}
+.vote-3{background:var(--n3-l);color:var(--n3)}
+.vote-dot{width:6px;height:6px;border-radius:50%}
+.vote-1 .vote-dot{background:var(--n1)} .vote-2 .vote-dot{background:var(--n2)} .vote-3 .vote-dot{background:var(--n3)}
+.vote-name{opacity:.7}
+.vote-val{font-family:'DM Mono',monospace}
+
+/* VOTE BAR */
+.vote-bar-wrap{margin-bottom:10px}
+.vote-bar-label{font-size:10px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.vote-bar{height:20px;background:var(--border);border-radius:10px;overflow:hidden;display:flex}
+.vb-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:width .6s ease;min-width:0}
+.vb-1{background:var(--n1);color:#fff}
+.vb-2{background:var(--n2);color:#fff}
+.vb-3{background:var(--n3);color:#fff}
+
+.nivel-def{
+  background:var(--white);border-radius:8px;
+  padding:10px 12px;border:1px solid var(--border);
+}
+.nd-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.nd-badge{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase}
+.nd-accion{font-size:11px;color:var(--muted);font-style:italic}
+.nd-impacto{font-size:11px;color:var(--text);margin-top:4px}
+
+/* ── VIEW: BRECHAS ───────────────────────────────────────────── */
+.brecha-card{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;transition:all .2s;
+  animation:fadeUp .25s ease both;
+}
+.brecha-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+.brecha-card.sev-critica{border-left:4px solid var(--n1)}
+.brecha-card.sev-alta{border-left:4px solid var(--n2)}
+.brecha-card.sev-media{border-left:4px solid var(--gold)}
+.brecha-card.sev-baja{border-left:4px solid var(--n3)}
+
+.brecha-top{display:flex;align-items:flex-start;gap:10px}
+.brecha-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sev-critica .brecha-icon{background:var(--n1-l)}
+.sev-alta .brecha-icon{background:var(--n2-l)}
+.sev-media .brecha-icon{background:#FFFDE7}
+.sev-baja .brecha-icon{background:var(--n3-l)}
+.brecha-text{font-size:13px;font-weight:500;color:var(--text);line-height:1.5;flex:1}
+.brecha-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.tag-sys{background:#E3F2FD;color:#1565C0}
+.tag-critica{background:var(--n1-l);color:var(--n1)}
+.tag-alta{background:var(--n2-l);color:var(--n2)}
+.tag-media{background:#FFFDE7;color:#827717}
+.tag-baja{background:var(--n3-l);color:var(--n3)}
+.tag-cat{background:#F3E5F5;color:#6A1B9A}
+.tag-release{background:#E8EAF6;color:#3949AB}
+
+/* EMPTY */
+.empty{padding:60px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-icon{font-size:40px;opacity:.3}
+.empty p{font-size:13px;color:var(--muted);max-width:280px;line-height:1.6}
+
+mark{background:var(--gold-l);color:var(--navy);border-radius:2px;padding:0 2px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+@media(max-width:768px){
+  .filters{flex-direction:column}
+  #search{width:100%;margin-left:0}
+  .level-legend{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">TEC</div>
+    <span class="brand-name">VPAF — Brechas y Preguntas Abiertas</span>
+    <span class="brand-sub">MVP1 · Oct 2026</span>
+  </div>
+</nav>
+
+<div class="section-tabs">
+  <a class="section-tab" href="index.html">🏗️ Arquitectura vs Habilitadores</a>
+  <a class="section-tab active" href="brechas.html">⚠ Análisis de Brechas <span class="tab-count">36</span></a>
+  <a class="section-tab" href="Arquitectura.html">🧩 Arquitectura</a>
+  <a class="section-tab" href="JourneAprendedor.html">📍 Journey del Aprendedor</a>
+</div>
+
+<div class="view-tabs">
+  <div class="view-tab active" onclick="switchView('preguntas',this)" id="tab-preguntas">
+    ❓ Preguntas Abiertas <span class="vt-badge" id="badge-preguntas">36</span>
+  </div>
+  <div class="view-tab" onclick="switchView('brechas',this)" id="tab-brechas">
+    ⚠ Análisis de Brechas <span class="vt-badge" id="badge-brechas">36</span>
+  </div>
+</div>
+
+<div class="hero">
+  <h1 id="hero-title">Preguntas Abiertas del Ecosistema</h1>
+  <p id="hero-desc">Inventario de decisiones pendientes priorizadas por el equipo de arquitectura. Cada pregunta está clasificada en 3 niveles según su impacto en el ecosistema MVP1.</p>
+  <div class="stats" id="stats"></div>
+</div>
+
+<!-- LEVEL LEGEND (solo para preguntas) -->
+<div class="level-legend" id="level-legend">
+  <div class="level-pill n1 active" onclick="filterNivel(1,this)">
+    <div class="lp-dot"></div>
+    Nivel 1 — Alta / Crítica
+    <span id="cnt-n1" style="font-family:'DM Mono',monospace;font-size:10px;opacity:.7"></span>
+  </div>
+  <div class="level-pill n2 active" onclick="filterNivel(2,this)">
+    <div class="lp-dot"></div>
+    Nivel 2 — Media / Alta
+    <span id="cnt-n2" style="font-family:'DM Mono',monospace;font-size:10px;opacity:.7"></span>
+  </div>
+  <div class="level-pill n3 active" onclick="filterNivel(3,this)">
+    <div class="lp-dot"></div>
+    Nivel 3 — Baja / Media
+    <span id="cnt-n3" style="font-family:'DM Mono',monospace;font-size:10px;opacity:.7"></span>
+  </div>
+  <div style="margin-left:auto;font-size:10px;color:var(--muted);align-self:center">
+    Haz clic en cada nivel para filtrar
+  </div>
+</div>
+
+<div class="filters" id="filter-bar">
+  <span class="filter-label">Macroproceso:</span>
+  <button class="filter-btn active" onclick="filterMacro('all',this)">Todos</button>
+  <button class="filter-btn" onclick="filterMacro('Gobierno',this)">Gobierno</button>
+  <button class="filter-btn" onclick="filterMacro('Identidad',this)">Identidad</button>
+  <button class="filter-btn" onclick="filterMacro('Académico',this)">Académico</button>
+  <button class="filter-btn" onclick="filterMacro('Comercial',this)">Comercial</button>
+  <button class="filter-btn" onclick="filterMacro('Arquitectura',this)">Arquitectura</button>
+  <input id="search" type="text" placeholder="Buscar pregunta, habilitador...">
+</div>
+
+<!-- VIEWS -->
+<div id="view-preguntas">
+  <div class="content" id="content-preguntas"></div>
+</div>
+<div id="view-brechas" style="display:none">
+  <div class="filters" style="background:var(--white);border-top:none">
+    <span class="filter-label">Severidad:</span>
+    <button class="filter-btn active" onclick="filterSev('all',this)">Todas</button>
+    <button class="filter-btn" onclick="filterSev('critica',this)">🔴 Crítica</button>
+    <button class="filter-btn" onclick="filterSev('alta',this)">🟠 Alta</button>
+    <button class="filter-btn" onclick="filterSev('media',this)">🟡 Media</button>
+    <button class="filter-btn" onclick="filterSev('baja',this)">🟢 Baja</button>
+    <input id="search-b" type="text" placeholder="Buscar brecha, sistema..." style="margin-left:auto;background:#fff;border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;width:200px;transition:all .2s">
+  </div>
+  <div class="content" id="content-brechas"></div>
+</div>
+
+<script>
+// ── NIVEL DEFINITIONS ─────────────────────────────────────────────────────────
+const NIVELES = {
+  1: {
+    label: "Nivel 1 — Alta / Crítica",
+    color: "#C62828",
+    def: "Decisiones estructurales que habilitan la operación y la consistencia del ecosistema. Sin estas definiciones, el modelo no es sostenible.",
+    tipo: "Gobierno de datos, source of truth, reglas de integración, identidad",
+    impacto: "Afecta todos los habilitadores, rompe consistencia y trazabilidad end-to-end",
+    accion: "Definición inmediata a nivel arquitectura"
+  },
+  2: {
+    label: "Nivel 2 — Media / Alta",
+    color: "#E65100",
+    def: "Decisiones que habilitan el flujo de negocio y la operación del journey del usuario. Pueden operar parcialmente, pero con ineficiencias o inconsistencias.",
+    tipo: "Definición de entidades de negocio, flujo comercial, procesos clave",
+    impacto: "Impacta procesos end-to-end (ej. captación, conversión)",
+    accion: "Definición en paralelo con implementación"
+  },
+  3: {
+    label: "Nivel 3 — Baja / Media",
+    color: "#388E3C",
+    def: "Decisiones que optimizan la experiencia o capacidades de soporte, sin afectar la base estructural del ecosistema.",
+    tipo: "Canales, experiencia, soporte, automatización",
+    impacto: "Impacta experiencia del usuario, no rompe operación core",
+    accion: "Evolución progresiva posterior"
+  }
+};
+
+// ── PREGUNTAS DATA ────────────────────────────────────────────────────────────
+const PREGUNTAS = [
+  {num:1,  macro:"Arquitectura",         hab:"Middleware 26",           pregunta:"¿Cuál es el funcionamiento y procesos del Middleware 26?",                                                                        votos:{Adrian:1,Aaron:1,Ivan:3,Victoria:2}, nivel:2},
+  {num:2,  macro:"Académico",            hab:"SEA (Gestión Académica)",  pregunta:"¿Cuál es la definición, estructura y atributos de los datos académicos?",                                                        votos:{Aaron:2,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:3,  macro:"Académico",            hab:"SEA (Gestión Académica)",  pregunta:"¿Qué datos académicos son definitivos y no deben ser modificados por otros sistemas?",                                           votos:{Aaron:3,Ivan:3,Oliverio:1,Extra:2}, nivel:2},
+  {num:4,  macro:"Académico",            hab:"SEA (Gestión Académica)",  pregunta:"¿Los productos se venderán con modalidad síncrono?",                                                                             votos:{Aaron:1,Ivan:3,Oliverio:3,Extra:2}, nivel:2},
+  {num:5,  macro:"Académico",            hab:"SEA / Cypher Learning",    pregunta:"¿Se realizará una integración automática entre Cypher y SEA?",                                                                   votos:{Aaron:2,Ivan:2,Oliverio:3,Extra:2}, nivel:2},
+  {num:6,  macro:"Analítica",            hab:"FUD",                      pregunta:"¿FUD solo consolida para analítica o también será referencia para otros sistemas?",                                              votos:{Aaron:3,Ivan:3,Oliverio:2,Extra:3}, nivel:3},
+  {num:7,  macro:"Analítica / Gobierno", hab:"Portal Unificado",         pregunta:"¿Cuáles son los datos que vivirán en el portal? ¿Cuáles son los datos que consumirá el portal y de qué habilitadores?",        votos:{Aaron:1,Ivan:1,Oliverio:2,Victoria:1}, nivel:1},
+  {num:8,  macro:"Arquitectura",         hab:"Portal Unificado",         pregunta:"¿El portal será responsable de alguna lógica de negocio y cuáles son?",                                                         votos:{Aaron:2,Ivan:2,Oliverio:3,Extra:2}, nivel:2},
+  {num:9,  macro:"Catálogos",            hab:"Fichas técnicas",          pregunta:"¿En qué sistema gobernará el ciclo de vida de las fichas de programas (nace, almacena, publica, propaga) y quién será responsable de su creación y mantenimiento?", votos:{Aaron:1,Ivan:2,Oliverio:1,Victoria:1}, nivel:1},
+  {num:10, macro:"Catálogos",            hab:"Oferta educativa",         pregunta:"¿Qué sistema es dueño del catálogo oficial de programas? (SEA, CMS, VTEX, Fichas técnicas, otro)",                             votos:{Aaron:1,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:11, macro:"Comercial",            hab:"CRM / HubSpot",            pregunta:"¿Cuál habilitador gestionará las relaciones comerciales? ¿Cuál es el rol real: gestión de leads, relación comercial o solo seguimiento de oportunidades?", votos:{Aaron:2,Ivan:2,Oliverio:2,Extra:2}, nivel:2},
+  {num:12, macro:"Integración",          hab:"CRM / HubSpot",            pregunta:"¿Se tiene contemplado usar la misma instancia de Salesforce para integrar con el portal y recibir los nuevos datos de Prospecto?", votos:{Aaron:1,Ivan:1,Oliverio:2,Victoria:1}, nivel:1},
+  {num:13, macro:"Comercial",            hab:"CRM / HubSpot",            pregunta:"¿El proceso actual de Salesforce (lead → aprendedor) se replicará para el ecosistema to-be?",                                   votos:{Aaron:1,Ivan:1,Oliverio:2,Victoria:1}, nivel:1},
+  {num:14, macro:"Gobierno",             hab:"Lead",                     pregunta:"¿Cuáles son los datos que definen al lead? ¿Qué evento o acción crea un Lead? ¿En qué parte del proceso nace un lead?",         votos:{Aaron:2,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:15, macro:"Gobierno",             hab:"Lead (As-Is)",             pregunta:"¿La completación del Lead del As-Is operará en el verano (periodo de transición)?",                                              votos:{Aaron:2,Ivan:2,Oliverio:2,Extra:2}, nivel:2},
+  {num:16, macro:"Comercial",            hab:"CRM / HubSpot",            pregunta:"¿Dónde vive realmente el lead: CRM, HubSpot o Portal?",                                                                         votos:{Aaron:3,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:17, macro:"Comercial",            hab:"VTEX (Ecommerce)",         pregunta:"¿Qué controla VTEX realmente: catálogo, orden, pago o todo el flujo comercial?",                                                votos:{Aaron:2,Ivan:2,Oliverio:2,Extra:2}, nivel:2},
+  {num:18, macro:"Gobierno",             hab:"Perfilamiento",            pregunta:"¿Dónde se guarda el perfil del usuario (visitas, programas consultados, navegación)?",                                           votos:{Aaron:2,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:19, macro:"Gobierno",             hab:"Inscripción",              pregunta:"¿Qué sistema define que un usuario está oficialmente inscrito? (SEA / VTEX / Identity Manager / Portal)",                       votos:{Aaron:1,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:20, macro:"Seguridad",            hab:"Cypher / TLG",             pregunta:"¿Qué herramienta aprovisionará acceso y permisos (rol aprendedor o experto) a los habilitadores TLG y Cypher Learning?",       votos:{Aaron:1,Ivan:1,Oliverio:3,Extra:2}, nivel:1},
+  {num:21, macro:"Gobierno",             hab:"Facturación / MDM",        pregunta:"¿Qué datos del usuario serán incorporados al MDM a partir del proceso de facturación y cómo se define el flujo de captura e integración al Golden Record?", votos:{Aaron:2,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:22, macro:"Gobierno",             hab:"Insignias / Diplomas",     pregunta:"¿Cuál es la fuente autoritaria de insignias y diplomas? (Cypher, TLG, SEA, Accredible)",                                       votos:{Aaron:1,Ivan:2,Oliverio:1,Victoria:1}, nivel:1},
+  {num:23, macro:"Gobierno",             hab:"Inscripción / Académico",  pregunta:"¿En qué momento el usuario deja de ser prospecto y se convierte oficialmente en aprendedor dentro del ecosistema?",             votos:{Aaron:2,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:24, macro:"Experiencia Aprendizaje","hab":"LXP / LMS / SEA",     pregunta:"¿La información del aprendizaje se centralizará en el ecosistema VPAF o se enviará a los ecosistemas origen (Tecmilenio, Arizona)?", votos:{Aaron:3,Ivan:3,Oliverio:2,Extra:3}, nivel:3},
+  {num:25, macro:"Experiencia Aprendizaje","hab":"TEC Bot / GPT",       pregunta:"¿Cuáles son los catálogos de skills del bot? ¿Quién es responsable de la gestión y procesos de la Base de Conocimiento del bot?", votos:{Aaron:2,Ivan:3,Oliverio:3,Extra:3}, nivel:3},
+  {num:26, macro:"Gobierno",             hab:"Service Now",              pregunta:"¿Cuál es el catálogo de servicios que gestiona el Service Now dentro del ecosistema?",                                           votos:{Aaron:1,Ivan:3,Oliverio:3,Extra:2}, nivel:2},
+  {num:27, macro:"Gobierno",             hab:"Consistencia",             pregunta:"¿Cómo se asegura que los datos del usuario sean consistentes entre sistemas? (source of truth)",                                 votos:{Aaron:2,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:28, macro:"Gobierno",             hab:"Consistencia",             pregunta:"¿Cuál es el proceso de actualización de un dato consistente entre habilitadores?",                                               votos:{Aaron:2,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:29, macro:"Gobierno",             hab:"Consistencia",             pregunta:"¿Qué datos necesitan consistencia y en qué habilitadores deben mantenerse alineados?",                                           votos:{Aaron:1,Ivan:2,Oliverio:1,Victoria:1}, nivel:1},
+  {num:30, macro:"Gobierno",             hab:"Consistencia",             pregunta:"¿Cómo se gestionan las actualizaciones de datos del usuario y qué sistema tiene prioridad en caso de conflicto entre versiones?", votos:{Aaron:2,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:31, macro:"IA / Experiencia",     hab:"TEC Bot / GPT",            pregunta:"¿El bot solo consulta datos (y de dónde) o también genera e interactúa con datos del usuario?",                                 votos:{Aaron:3,Ivan:3,Oliverio:3,Extra:3}, nivel:3},
+  {num:32, macro:"Identidad",            hab:"Identity Manager",         pregunta:"¿El Identity Manager es solo autenticación o también administra atributos del usuario a nivel de roles?",                       votos:{Aaron:2,Ivan:2,Oliverio:2,Extra:2}, nivel:2},
+  {num:33, macro:"Identidad",            hab:"Multiplicidad",            pregunta:"¿Un usuario puede existir en múltiples sistemas sin estar en MDM?",                                                              votos:{Aaron:3,Ivan:2,Oliverio:2,Extra:2}, nivel:2},
+  {num:34, macro:"Identidad",            hab:"Atributos",                pregunta:"¿Dónde viven los atributos fuente del usuario (nombre, correo, etc.)?",                                                         votos:{Aaron:1,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+  {num:35, macro:"Identidad",            hab:"Source of Truth",          pregunta:"¿Qué habilitador es responsable (source of truth) de cada tipo de dato a lo largo del journey?",                               votos:{Aaron:2,Ivan:2,Oliverio:1,Extra:2}, nivel:2},
+  {num:36, macro:"Identidad",            hab:"Identity / MDM",           pregunta:"¿Cuál es el identificador único del usuario que se utilizará de forma transversal en todos los habilitadores para asegurar trazabilidad end-to-end?", votos:{Aaron:1,Ivan:1,Oliverio:1,Victoria:1}, nivel:1},
+];
+
+// ── BRECHAS DATA ─────────────────────────────────────────────────────────────
+const BRECHAS = [
+  {id:"B-01",sistema:"Portal Unificado",     texto:"Sub-Afiliación Z-Aprendedor PENDIENTE — bloqueante MVP1",                                  severidad:"critica", categoria:"Dato maestro",  release:"R1"},
+  {id:"B-02",sistema:"Portal Unificado",     texto:"3 portales simultáneos en octubre (C-22) — experiencia fragmentada del usuario",           severidad:"alta",    categoria:"Arquitectura",  release:"R1"},
+  {id:"B-03",sistema:"Portal Unificado",     texto:"Catálogos SEA cargados manualmente en CMS (C-21) — sin integración automática",            severidad:"media",   categoria:"Integración",   release:"R1"},
+  {id:"B-04",sistema:"Tec.bot VPAF",         texto:"Skills con datos del aprendedor son scope de R5, no de R2",                                severidad:"media",   categoria:"Alcance",        release:"R2"},
+  {id:"B-05",sistema:"Tec.bot VPAF",         texto:"Dependencia de estabilización arquitectónica (LUIS → Semantic Kernel)",                   severidad:"alta",    categoria:"Arquitectura",  release:"R2"},
+  {id:"B-06",sistema:"CMS (Drupal)",         texto:"Catálogos SEA se cargan manualmente al CMS — sin integración automática SEA → CMS",       severidad:"media",   categoria:"Integración",   release:"R1, R3"},
+  {id:"B-07",sistema:"FUD",                  texto:"G-01 CRÍTICA: Sin tabla correspondencia orderId VTEX ↔ ID Gestor de Pagos en FUD",        severidad:"critica", categoria:"Dato maestro",  release:"R4–R5"},
+  {id:"B-08",sistema:"FUD",                  texto:"G-02 CRÍTICA: Estado de Orden VTEX no llega al FUD — sin analítica de conversión",        severidad:"critica", categoria:"Integración",   release:"R4–R5"},
+  {id:"B-09",sistema:"FUD",                  texto:"G-03: Catálogo VTEX (ProductId, SKU, Category) no llega al FUD",                          severidad:"alta",    categoria:"Integración",   release:"R4–R5"},
+  {id:"B-10",sistema:"FUD",                  texto:"G-04: Carrito abandonado sin integración FUD ni CRM",                                      severidad:"alta",    categoria:"Integración",   release:"R4–R5"},
+  {id:"B-11",sistema:"FUD",                  texto:"Modelo de datos FUD pendiente acuerdo con Adrián Tijerina (deadline jun 2026)",            severidad:"alta",    categoria:"Dato maestro",  release:"R4–R5"},
+  {id:"B-12",sistema:"LXP (Cypher)",         texto:"Transferencia de calificaciones Cypher → SEA requiere integración pendiente",             severidad:"alta",    categoria:"Integración",   release:"R4"},
+  {id:"B-13",sistema:"CRM (Salesforce)",     texto:"HubSpot recibe leads antes que Salesforce — flujo C-18 sin documentar completamente",     severidad:"media",   categoria:"Proceso",       release:"R3"},
+  {id:"B-14",sistema:"CRM (Salesforce)",     texto:"Coexistencia de datos limpios nuevos con datos sucios legacy (DP-01)",                    severidad:"alta",    categoria:"Dato maestro",  release:"R3"},
+  {id:"B-15",sistema:"Search Bar",           texto:"Conversación frontend-backend aún no cerrada al inicio del sprint",                       severidad:"media",   categoria:"Arquitectura",  release:"R2, R4"},
+  {id:"B-16",sistema:"Search Bar",           texto:"No sube al API Manager — sin inventario formal de la API",                                 severidad:"media",   categoria:"Gobernanza",    release:"R2, R4"},
+  {id:"B-17",sistema:"ESB IBM / Middleware", texto:"Rol exacto ESB IBM vs. Middleware 26 no totalmente delimitado en el diagrama MVP1",       severidad:"media",   categoria:"Arquitectura",  release:"R3"},
+  {id:"B-18",sistema:"Banner TEC",           texto:"ID Banner ≠ ID VTEX — requiere tabla de correspondencia en FUD para trazabilidad",        severidad:"alta",    categoria:"Dato maestro",  release:"R3, R4"},
+  {id:"B-19",sistema:"Middleware 26",        texto:"Sin uso definido hasta que blueprint E-Commerce esté listo (C-14)",                       severidad:"alta",    categoria:"Arquitectura",  release:"R3"},
+  {id:"B-20",sistema:"VTEX",                 texto:"Sin webhook documentado para propagación de estado de orden al FUD",                       severidad:"critica", categoria:"Integración",   release:"R3"},
+  {id:"B-21",sistema:"VTEX",                 texto:"Catálogo de productos VTEX no sincronizado con catálogo académico SEA",                    severidad:"alta",    categoria:"Dato maestro",  release:"R3"},
+  {id:"B-22",sistema:"Identity Manager",     texto:"Golden Record solo se activa en facturación — usuarios sin factura no tienen MDM",        severidad:"alta",    categoria:"Dato maestro",  release:"R2"},
+  {id:"B-23",sistema:"MDM",                  texto:"Sin definición de reglas de match/merge para generación del Golden Record",               severidad:"alta",    categoria:"Dato maestro",  release:"R3"},
+  {id:"B-24",sistema:"SEA",                  texto:"Sin API expuesta para consulta del catálogo académico desde el Portal",                    severidad:"alta",    categoria:"Integración",   release:"R1"},
+  {id:"B-25",sistema:"SEA",                  texto:"Proceso de inscripción académica post-pago no documentado end-to-end",                     severidad:"media",   categoria:"Proceso",       release:"R3"},
+  {id:"B-26",sistema:"Gestor de Pagos",      texto:"Flujo de conciliación entre VTEX y Gestor de Pagos sin definir",                          severidad:"alta",    categoria:"Proceso",       release:"R3"},
+  {id:"B-27",sistema:"Accredible",           texto:"Sin flujo automatizado de emisión de insignias desde SEA",                                 severidad:"media",   categoria:"Integración",   release:"R3, R4"},
+  {id:"B-28",sistema:"PASE",                 texto:"Token de autenticación PASE en querystring — riesgo de seguridad (pendiente migrar a Bearer Token)", severidad:"alta", categoria:"Seguridad", release:"R1"},
+  {id:"B-29",sistema:"MDM",                  texto:"Sub-Afiliación Z-Aprendedor sin definir — bloqueante para VTEX y personalización del Portal", severidad:"critica", categoria:"Dato maestro", release:"R1"},
+  {id:"B-30",sistema:"SAP / HANA",           texto:"Mapeo de centros de costo para programas VPAF pendiente",                                  severidad:"media",   categoria:"Dato maestro",  release:"R3, R4"},
+  {id:"B-31",sistema:"Facturador",           texto:"Validación de RFC del aprendedor no integrada con SAT en tiempo real",                     severidad:"baja",    categoria:"Integración",   release:"R3"},
+  {id:"B-32",sistema:"Qualtrics",            texto:"Trigger de encuestas NPS depende de evento manual desde LXP",                             severidad:"baja",    categoria:"Integración",   release:"R4"},
+  {id:"B-33",sistema:"Tec.feedback",         texto:"Sin definición de momentos de activación de encuestas NPS in-app",                        severidad:"baja",    categoria:"Proceso",       release:"R5"},
+  {id:"B-34",sistema:"LMS (TLG)",            texto:"Transferencia manual de calificaciones TLG → SEA (hallazgo arquitectónico)",              severidad:"media",   categoria:"Integración",   release:"R3"},
+  {id:"B-35",sistema:"Tec.gpt (IA)",         texto:"API sin inventario formal en API Manager — sin trazabilidad de llamadas",                  severidad:"media",   categoria:"Gobernanza",    release:"R2"},
+  {id:"B-36",sistema:"Portal Unificado",     texto:"DP-07: Definición de catálogo VTEX (SKU vs nombre de programa) pendiente de alineación con SEA", severidad:"alta", categoria:"Dato maestro", release:"R3"},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentView = 'preguntas';
+let activeNiveles = new Set([1,2,3]);
+let activeMacro = 'all';
+let activeSeveridad = 'all';
+let searchQ = '';
+let searchB = '';
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function hl(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+function nClass(n){ return n===1?'n1':n===2?'n2':'n3' }
+function sevIcon(s){ return {critica:'🔴',alta:'🟠',media:'🟡',baja:'🟢'}[s] }
+function sevLabel(s){ return {critica:'Crítica',alta:'Alta',media:'Media',baja:'Baja'}[s] }
+
+// ── SWITCH VIEW ───────────────────────────────────────────────────────────────
+function switchView(view, tab) {
+  currentView = view;
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('view-preguntas').style.display = view==='preguntas'?'block':'none';
+  document.getElementById('view-brechas').style.display   = view==='brechas' ?'block':'none';
+  document.getElementById('level-legend').style.display   = view==='preguntas'?'flex':'none';
+  document.getElementById('filter-bar').style.display     = view==='preguntas'?'flex':'none';
+  if (view==='preguntas') {
+    document.getElementById('hero-title').textContent = 'Preguntas Abiertas del Ecosistema';
+    document.getElementById('hero-desc').textContent  = 'Inventario de decisiones pendientes priorizadas por el equipo de arquitectura. Cada pregunta está clasificada en 3 niveles según su impacto en el ecosistema MVP1.';
+    renderStats();
+  } else {
+    document.getElementById('hero-title').textContent = 'Análisis de Brechas Arquitectónicas';
+    document.getElementById('hero-desc').textContent  = 'Inventario de brechas, riesgos y dependencias identificadas en la arquitectura MVP1. Clasificadas por severidad y sistema afectado.';
+    renderStats();
+    renderBrechas();
+  }
+}
+
+// ── RENDER STATS ──────────────────────────────────────────────────────────────
+function renderStats() {
+  if (currentView === 'preguntas') {
+    const n1=PREGUNTAS.filter(p=>p.nivel===1).length, n2=PREGUNTAS.filter(p=>p.nivel===2).length, n3=PREGUNTAS.filter(p=>p.nivel===3).length;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><span class="stat-val" style="color:var(--gold-l)">${PREGUNTAS.length}</span><span class="stat-lbl">Preguntas abiertas</span></div>
+      <div class="stat"><span class="stat-val" style="color:#FF6B6B">${n1}</span><span class="stat-lbl">Nivel 1 — Alta/Crítica</span></div>
+      <div class="stat"><span class="stat-val" style="color:#FFB74D">${n2}</span><span class="stat-lbl">Nivel 2 — Media/Alta</span></div>
+      <div class="stat"><span class="stat-val" style="color:#A5D6A7">${n3}</span><span class="stat-lbl">Nivel 3 — Baja/Media</span></div>`;
+    document.getElementById('cnt-n1').textContent = n1;
+    document.getElementById('cnt-n2').textContent = n2;
+    document.getElementById('cnt-n3').textContent = n3;
+  } else {
+    const crit=BRECHAS.filter(b=>b.severidad==='critica').length, alta=BRECHAS.filter(b=>b.severidad==='alta').length, media=BRECHAS.filter(b=>b.severidad==='media').length;
+    const sistemas=new Set(BRECHAS.map(b=>b.sistema)).size;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><span class="stat-val" style="color:var(--gold-l)">${BRECHAS.length}</span><span class="stat-lbl">Brechas totales</span></div>
+      <div class="stat"><span class="stat-val" style="color:#FF6B6B">${crit}</span><span class="stat-lbl">Críticas</span></div>
+      <div class="stat"><span class="stat-val" style="color:#FFB74D">${alta}</span><span class="stat-lbl">Altas</span></div>
+      <div class="stat"><span class="stat-val" style="color:#FFF176">${media}</span><span class="stat-lbl">Medias</span></div>
+      <div class="stat"><span class="stat-val" style="color:var(--gold-l)">${sistemas}</span><span class="stat-lbl">Sistemas afectados</span></div>`;
+  }
+}
+
+// ── RENDER PREGUNTAS ──────────────────────────────────────────────────────────
+function renderPreguntas() {
+  const filtered = PREGUNTAS.filter(p => {
+    if (!activeNiveles.has(p.nivel)) return false;
+    if (activeMacro !== 'all' && !p.macro.toLowerCase().includes(activeMacro.toLowerCase())) return false;
+    if (searchQ) {
+      const q = searchQ.toLowerCase();
+      return [p.pregunta, p.macro, p.hab].some(v => v.toLowerCase().includes(q));
+    }
+    return true;
+  });
+
+  document.getElementById('badge-preguntas').textContent = filtered.length;
+  if (!filtered.length) {
+    document.getElementById('content-preguntas').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>Sin resultados para los filtros actuales</p></div>`;
+    return;
+  }
+
+  // Count votes distribution
+  document.getElementById('content-preguntas').innerHTML = filtered.map(p => {
+    const nc = nClass(p.nivel);
+    const nd = NIVELES[p.nivel];
+    const votes = Object.entries(p.votos);
+    const v1=votes.filter(([,v])=>v===1).length, v2=votes.filter(([,v])=>v===2).length, v3=votes.filter(([,v])=>v===3).length;
+    const total=votes.length;
+    const p1=total?Math.round(v1/total*100):0, p2=total?Math.round(v2/total*100):0, p3=100-p1-p2;
+    
+    const votesHTML = votes.map(([name,val]) =>
+      `<div class="vote-chip vote-${val}"><div class="vote-dot"></div><span class="vote-name">${name}</span><span class="vote-val">N${val}</span></div>`
+    ).join('');
+
+    return `
+    <div class="q-card ${nc}" id="qc-${p.num}">
+      <div class="q-header" onclick="toggleQ('qc-${p.num}')">
+        <div class="q-num">${p.num}</div>
+        <div class="q-content">
+          <div class="q-pregunta">${hl(p.pregunta, searchQ)}</div>
+          <div class="q-tags">
+            ${p.macro?`<span class="tag tag-macro">📂 ${hl(p.macro, searchQ)}</span>`:''}
+            ${p.hab?`<span class="tag tag-hab">🖥 ${hl(p.hab, searchQ)}</span>`:''}
+            <span class="tag tag-nivel-${p.nivel}">Nivel ${p.nivel} · ${nd.label.split('—')[1].trim()}</span>
+          </div>
+        </div>
+        <span class="q-toggle">▾</span>
+      </div>
+      <div class="q-body">
+        <div class="vote-bar-label">Distribución de votos del equipo</div>
+        <div class="vote-bar" style="margin-bottom:10px">
+          ${p1>0?`<div class="vb-seg vb-1" style="width:${p1}%">${v1>0?v1:''}</div>`:''}
+          ${p2>0?`<div class="vb-seg vb-2" style="width:${p2}%">${v2>0?v2:''}</div>`:''}
+          ${p3>0?`<div class="vb-seg vb-3" style="width:${p3}%">${v3>0?v3:''}</div>`:''}
+        </div>
+        <div class="q-votes">${votesHTML}</div>
+        <div class="nivel-def">
+          <div class="nd-header">
+            <span class="nd-badge tag-nivel-${p.nivel}">${nd.label}</span>
+          </div>
+          <div class="nd-impacto"><strong>Impacto:</strong> ${nd.impacto}</div>
+          <div class="nd-impacto" style="margin-top:4px"><strong>Tipo:</strong> ${nd.tipo}</div>
+          <div class="nd-accion" style="margin-top:6px">⚡ Acción: ${nd.accion}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER BRECHAS ────────────────────────────────────────────────────────────
+function renderBrechas() {
+  const filtered = BRECHAS.filter(b => {
+    if (activeSeveridad !== 'all' && b.severidad !== activeSeveridad) return false;
+    if (searchB) {
+      const q = searchB.toLowerCase();
+      return [b.id,b.sistema,b.texto,b.categoria,b.release].some(v=>v.toLowerCase().includes(q));
+    }
+    return true;
+  }).sort((a,b) => {
+    const o={critica:0,alta:1,media:2,baja:3};
+    return o[a.severidad]-o[b.severidad];
+  });
+
+  document.getElementById('badge-brechas').textContent = filtered.length;
+  if (!filtered.length) {
+    document.getElementById('content-brechas').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>Sin brechas con los filtros actuales</p></div>`;
+    return;
+  }
+
+  document.getElementById('content-brechas').innerHTML = filtered.map(b => `
+    <div class="brecha-card sev-${b.severidad}">
+      <div class="brecha-top">
+        <div class="brecha-icon">${sevIcon(b.severidad)}</div>
+        <div style="flex:1">
+          <div class="brecha-text">${hl(b.texto, searchB)}</div>
+          <div class="brecha-tags">
+            <span class="tag tag-sys">🖥 ${hl(b.sistema, searchB)}</span>
+            <span class="tag tag-${b.severidad}">${sevLabel(b.severidad)}</span>
+            <span class="tag tag-cat">📂 ${hl(b.categoria, searchB)}</span>
+            <span class="tag tag-release">📅 ${b.release}</span>
+            <span class="tag" style="background:#F5F4F0;color:var(--muted);font-family:'DM Mono',monospace">${b.id}</span>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── TOGGLE CARD ───────────────────────────────────────────────────────────────
+function toggleQ(id) {
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function filterNivel(n, el) {
+  if (activeNiveles.has(n)) {
+    if (activeNiveles.size > 1) { activeNiveles.delete(n); el.classList.remove('active'); }
+  } else {
+    activeNiveles.add(n); el.classList.add('active');
+  }
+  renderPreguntas();
+}
+
+function filterMacro(m, el) {
+  activeMacro = m;
+  document.querySelectorAll('#filter-bar .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPreguntas();
+}
+
+function filterSev(s, el) {
+  activeSeveridad = s;
+  document.querySelectorAll('#view-brechas .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderBrechas();
+}
+
+document.getElementById('search').addEventListener('input', function(){
+  searchQ = this.value.trim(); renderPreguntas();
+});
+document.getElementById('search-b').addEventListener('input', function(){
+  searchB = this.value.trim(); renderBrechas();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderStats();
+renderPreguntas();
+</script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VPAF — Journey del Aprendedor</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #002847;
+  --gold:   #B5862A;
+  --gold-l: #F0C96A;
+  --bg:     #F4F2EC;
+  --white:  #FFFFFF;
+  --border: #E2DDD4;
+  --text:   #1A1A1A;
+  --muted:  #787268;
+  --light:  #A09890;
+
+  /* Journey colors */
+  --c-desc: #1D5B8C;
+  --c-expl: #1A7A4A;
+  --c-defi: #8B3A00;
+  --c-vivi: #6B2D8B;
+  --c-reco: #8B6B00;
+  --c-tran: #2A5C6B;
+
+  --c-desc-l: #E6F0F9;
+  --c-expl-l: #E6F5EC;
+  --c-defi-l: #FFF0E6;
+  --c-vivi-l: #F5EAF9;
+  --c-reco-l: #FBF6E6;
+  --c-tran-l: #E6F3F5;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:var(--navy);
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  border-bottom:2px solid var(--gold);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:30px;height:30px;border-radius:6px;
+  background:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:11px;
+  color:var(--navy);letter-spacing:-.5px;
+}
+.brand-name{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;color:#fff}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.4);margin-left:4px}
+.search-wrap{display:flex;align-items:center;gap:8px}
+#global-search{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;padding:5px 14px;font-size:12px;color:#fff;
+  font-family:'DM Sans',sans-serif;width:200px;
+  transition:all .2s;
+}
+#global-search::placeholder{color:rgba(255,255,255,.35)}
+#global-search:focus{outline:none;background:rgba(255,255,255,.14);width:260px}
+.result-count{font-size:11px;color:rgba(255,255,255,.4);min-width:60px;text-align:right}
+
+/* ── SECTION TABS ───────────────────────────────────────────── */
+.section-tabs{display:flex;gap:0;background:var(--white);border-bottom:1px solid var(--border);padding:0 20px}
+.section-tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center}
+.section-tab:hover{color:var(--text)}
+.section-tab.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600}
+.tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;font-size:10px;font-weight:600;margin-left:6px;padding:0 5px;background:var(--bg);color:var(--muted)}
+.section-tab.active .tab-count{background:var(--gold);color:var(--navy)}
+
+/* ── HERO ───────────────────────────────────────────────────── */
+.hero{
+  background:var(--navy);
+  padding:32px 24px 28px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.hero h1{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:22px;
+  color:#fff;letter-spacing:-.5px;margin-bottom:6px;
+}
+.hero p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:600px}
+.stats{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap}
+.stat{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:8px 14px;
+  display:flex;flex-direction:column;gap:1px;
+}
+.stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--gold-l)}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── JOURNEY RAIL ───────────────────────────────────────────── */
+.journey-rail{
+  display:flex;gap:0;overflow-x:auto;
+  padding:16px 24px 0;
+  border-bottom:1px solid var(--border);
+  background:var(--white);
+  position:sticky;top:93px;z-index:100;
+  scrollbar-width:none;
+}
+.journey-rail::-webkit-scrollbar{display:none}
+
+.j-tab{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 18px 12px;cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:all .18s;white-space:nowrap;
+  position:relative;flex-shrink:0;
+}
+.j-tab:hover{background:var(--bg)}
+.j-tab.active{border-bottom-color:var(--jc);background:var(--bg)}
+.j-icon{font-size:18px}
+.j-name{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.5px;
+  transition:color .18s;
+}
+.j-tab.active .j-name{color:var(--jc)}
+.j-count{
+  font-size:9px;font-weight:600;
+  background:var(--jc);color:#fff;
+  border-radius:8px;padding:1px 6px;
+  opacity:0;transition:opacity .18s;
+}
+.j-tab.active .j-count,.j-tab:hover .j-count{opacity:1}
+
+/* ── MAIN LAYOUT ────────────────────────────────────────────── */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 52px - 61px - 108px)}
+
+/* ── SIDEBAR ────────────────────────────────────────────────── */
+.sidebar{
+  background:var(--white);
+  border-right:1px solid var(--border);
+  padding:16px 0;
+  overflow-y:auto;
+  position:sticky;
+  top:calc(52px + 41px + 61px);
+  max-height:calc(100vh - 52px - 41px - 61px);
+}
+.sb-section{margin-bottom:4px}
+.sb-journey-label{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:10px;
+  text-transform:uppercase;letter-spacing:.6px;
+  color:var(--light);
+  padding:10px 16px 4px;
+  display:flex;align-items:center;gap:6px;
+}
+.sb-sub{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px 8px 24px;cursor:pointer;
+  font-size:12px;color:var(--muted);
+  transition:all .15s;border-left:2px solid transparent;
+  line-height:1.4;
+}
+.sb-sub:hover{background:var(--bg);color:var(--text)}
+.sb-sub.active{
+  background:var(--bg);color:var(--jc);
+  border-left-color:var(--jc);font-weight:600;
+}
+.sb-count{
+  margin-left:auto;font-size:9px;font-weight:600;
+  background:var(--border);color:var(--muted);
+  border-radius:8px;padding:1px 6px;flex-shrink:0;
+}
+.sb-sub.active .sb-count{background:var(--jc);color:#fff}
+
+/* ── CONTENT AREA ───────────────────────────────────────────── */
+.content{padding:24px;overflow-y:auto}
+
+.subetapa-block{
+  margin-bottom:36px;
+  animation:fadeUp .3s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.sub-header{
+  display:flex;align-items:flex-start;gap:12px;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:2px solid var(--jc-l, var(--border));
+}
+.sub-dot{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:var(--jc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.sub-meta{flex:1}
+.sub-name{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:16px;
+  color:var(--text);letter-spacing:-.3px;
+}
+.sub-macro{
+  font-size:11px;color:var(--muted);margin-top:2px;
+  font-style:italic;
+}
+.sub-badge{
+  display:inline-block;padding:3px 10px;border-radius:10px;
+  font-size:10px;font-weight:700;
+  background:var(--jc-l);color:var(--jc);
+  text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;
+}
+
+/* ── PROCESS CARD ───────────────────────────────────────────── */
+.proc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:14px;
+}
+.proc-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  transition:all .2s;
+  cursor:pointer;
+}
+.proc-card:hover{
+  border-color:var(--jc);
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+  transform:translateY(-2px);
+}
+.proc-card.expanded{
+  border-color:var(--jc);
+  box-shadow:0 4px 20px rgba(0,0,0,.1);
+}
+.proc-top{
+  padding:14px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;
+}
+.proc-name{
+  font-family:'Syne',sans-serif;font-weight:600;font-size:13px;
+  color:var(--text);line-height:1.4;flex:1;
+}
+.proc-toggle{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;
+  transition:transform .2s,background .15s;
+}
+.proc-card.expanded .proc-toggle{
+  transform:rotate(180deg);
+  background:var(--jc);color:#fff;
+}
+
+.proc-tags{
+  padding:0 16px 12px;
+  display:flex;flex-wrap:wrap;gap:4px;
+}
+.tag{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;
+}
+.tag-fuente{background:#E3F2FD;color:#1565C0}
+.tag-destino{background:#E8F5E9;color:#2E7D32}
+.tag-tipo{background:#FFF3E0;color:#E65100}
+.tag-crud{background:#F3E5F5;color:#6A1B9A}
+.tag-int{background:#E0F2F1;color:#00695C}
+
+/* EXPANDED BODY */
+.proc-body{
+  display:none;
+  border-top:1px solid var(--border);
+  padding:14px 16px;
+  background:var(--bg);
+}
+.proc-card.expanded .proc-body{display:block}
+
+.proc-objetivo{
+  font-size:12px;font-weight:500;color:var(--text);
+  margin-bottom:8px;line-height:1.6;
+}
+.proc-desc{
+  font-size:11px;color:var(--muted);line-height:1.7;
+  border-left:2px solid var(--jc);padding-left:10px;
+  margin-bottom:12px;
+  font-style:italic;
+}
+.proc-flow{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  background:var(--white);border-radius:8px;
+  padding:10px 12px;border:1px solid var(--border);
+  margin-bottom:10px;
+}
+.flow-sys{
+  padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;
+  background:var(--jc-l);color:var(--jc);flex-shrink:0;
+}
+.flow-arrow{
+  font-size:14px;color:var(--muted);flex-shrink:0;
+}
+.flow-proc{
+  font-size:11px;color:var(--muted);font-style:italic;flex:1;
+  min-width:100px;
+}
+.flow-dest{
+  padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;
+  background:#E8F5E9;color:#2E7D32;flex-shrink:0;
+}
+
+.proc-meta-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+}
+.proc-meta-item{
+  background:var(--white);border-radius:6px;
+  padding:6px 10px;border:1px solid var(--border);
+}
+.pm-label{font-size:9px;font-weight:700;color:var(--light);
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.pm-value{font-size:11px;color:var(--text);line-height:1.4}
+
+.proc-capacidad{
+  margin-top:8px;padding:6px 10px;
+  background:linear-gradient(135deg,var(--jc-l),var(--white));
+  border-radius:6px;border:1px solid var(--jc);
+  font-size:11px;color:var(--jc);font-weight:500;
+}
+.pc-label{font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.4px;opacity:.7;margin-bottom:2px}
+
+/* ── EMPTY STATE ────────────────────────────────────────────── */
+.empty{
+  padding:60px 24px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-icon{font-size:40px;opacity:.3}
+.empty p{font-size:13px;color:var(--muted);max-width:300px;line-height:1.6}
+
+/* ── SEARCH HIGHLIGHT ───────────────────────────────────────── */
+mark{background:var(--gold-l);color:var(--navy);border-radius:2px;padding:0 2px}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .proc-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">TEC</div>
+    <span class="brand-name">Journey del Aprendedor VPAF</span>
+    <span class="brand-sub">MVP1 · Oct 2026</span>
+  </div>
+  <div class="search-wrap">
+    <input id="global-search" type="text" placeholder="Buscar proceso, habilitador...">
+    <span class="result-count" id="result-count"></span>
+  </div>
+</nav>
+
+<div class="section-tabs">
+  <a class="section-tab" href="index.html">🏗️ Arquitectura vs Habilitadores</a>
+  <a class="section-tab" href="brechas.html">⚠ Análisis de Brechas <span class="tab-count">36</span></a>
+  <a class="section-tab" href="Arquitectura.html">🧩 Arquitectura</a>
+  <a class="section-tab active" href="JourneAprendedor.html">📍 Journey del Aprendedor</a>
+</div>
+
+<div class="hero">
+  <h1>Macroprocesos del Ecosistema Digital</h1>
+  <p>Journey completo del aprendedor: desde el primer impacto hasta la acreditación. Haz clic en cualquier etapa o proceso para explorar el detalle de integraciones y flujos de datos.</p>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="journey-rail" id="journey-rail"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="content" id="content"></main>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const JOURNEY_DATA = {
+  "Descubrimiento": {
+    icon: "🔍", color: "#1D5B8C", colorLight: "#E6F0F9",
+    subetapas: {
+      "Detonante / Búsqueda": {
+        macroproceso: "Gestionar atracción de aprendedores",
+        icon: "📡",
+        procesos: [
+          { proceso: "Exponer oferta educativa en canales digitales",
+            objetivo: "Publicación de contenido y campañas en canales digitales alineados a la oferta educativa.",
+            descripcion: "El usuario es impactado por anuncios, contenido o comunicaciones en distintos canales digitales (redes, buscadores, display). Como resultado, se genera awareness y primer contacto con la oferta.",
+            fuente: "Marketing Cloud", procesamiento: "Segmenta audiencias y define campañas", destino: "Portal Unificado",
+            transaccion: "Contenido y campañas digitales", tipo_dato: "Contenido / Campañas",
+            integracion: "API / Batch", crud: "—", capacidad: "Enganche de aprendedores prospecto", mds: "Paola Nohemi" },
+          { proceso: "Impactar al usuario con campañas y contenido digital",
+            objetivo: "Activación y despliegue de campañas digitales en los canales definidos para atraer tráfico calificado.",
+            descripcion: "Ejecución de estrategias de difusión digital para generar tráfico hacia el ecosistema. El usuario visualiza anuncios, contenidos o recomendaciones en distintos puntos de contacto. Como resultado, se generan visitas e interacciones iniciales.",
+            fuente: "Marketing Cloud", procesamiento: "Publica campañas en canales digitales", destino: "Usuario / Portal",
+            transaccion: "Impactos publicitarios", tipo_dato: "Evento (interacción)",
+            integracion: "Event-driven", crud: "Consumo", capacidad: "Enganche de aprendedores prospecto", mds: "Paola Nohemi" },
+        ]
+      },
+      "Acceso al Portal Unificado": {
+        macroproceso: "Gestionar atracción de aprendedores",
+        icon: "🌐",
+        procesos: [
+          { proceso: "Capturar interés del usuario (generación de lead)",
+            objetivo: "Registro estructurado de interesados a través de formularios, landings y puntos de contacto digitales.",
+            descripcion: "El usuario interesado comparte sus datos en formularios o mecanismos de contacto del ecosistema. Como resultado, se crea un registro de lead con información básica para atención comercial o seguimiento automatizado.",
+            fuente: "Portal Unificado", procesamiento: "Captura datos en formularios", destino: "CRM",
+            transaccion: "Lead (datos personales básicos)", tipo_dato: "Dato maestro (Prospecto/Lead)",
+            integracion: "API", crud: "Creación", capacidad: "Enganche de aprendedores prospecto", mds: "Paola Nohemi" },
+          { proceso: "Registrar interacción y comportamiento digital del usuario",
+            objetivo: "Monitoreo de la interacción de los usuarios con campañas, contenidos y navegación digital.",
+            descripcion: "Las herramientas de analítica registran clics, navegación, permanencia e interacciones del usuario. Como resultado, se obtiene información de comportamiento útil para medir efectividad, detectar fricciones y enriquecer el entendimiento del usuario.",
+            fuente: "Portal / Clarity", procesamiento: "Genera eventos de navegación", destino: "Clarity",
+            transaccion: "Eventos de comportamiento", tipo_dato: "Dato analítico (comportamiento)",
+            integracion: "Event streaming", crud: "Consumo", capacidad: "Enganche de aprendedores prospecto", mds: "Paola Nohemi" },
+        ]
+      }
+    }
+  },
+  "Exploración": {
+    icon: "🗺️", color: "#1A7A4A", colorLight: "#E6F5EC",
+    subetapas: {
+      "Búsqueda de Programas": {
+        macroproceso: "Gestionar exploración de oferta educativa",
+        icon: "🔎",
+        procesos: [
+          { proceso: "Navegar el portal unificado",
+            objetivo: "Acceso y recorrido inicial del usuario dentro del portal para explorar la oferta educativa disponible.",
+            descripcion: "El usuario ingresa al portal y navega por sus secciones, categorías y accesos principales. Como resultado, conoce la estructura de la oferta y se ubica dentro del ecosistema digital.",
+            fuente: "Portal Unificado", procesamiento: "Expone contenido y navegación", destino: "Usuario",
+            transaccion: "Experiencia de navegación", tipo_dato: "Evento (navegación)",
+            integracion: "On-demand", crud: "Consumo", capacidad: "Enganche de aprendedores prospecto", mds: "Paola Nohemi" },
+          { proceso: "Buscar programas educativos",
+            objetivo: "Consulta de programas educativos mediante mecanismos de búsqueda y filtrado dentro del ecosistema.",
+            descripcion: "El usuario utiliza el buscador y/o filtros del portal para localizar programas de interés. Como resultado, obtiene un conjunto de opciones alineadas a sus criterios de búsqueda.",
+            fuente: "Search Bar", procesamiento: "Ejecuta consultas de búsqueda", destino: "CMS / Portal Unificado",
+            transaccion: "Resultados de búsqueda", tipo_dato: "Dato estructurado (búsqueda)",
+            integracion: "API", crud: "Consumo", capacidad: "Oferta inicial de rutas de aprendizaje", mds: "Paola Nohemi" },
+        ]
+      },
+      "Revisión de Programas (Pre-diagnóstico)": {
+        macroproceso: "Gestionar exploración de oferta educativa",
+        icon: "📋",
+        procesos: [
+          { proceso: "Consultar contenido de la oferta educativa",
+            objetivo: "Visualización de información estructurada de programas: fichas técnicas, temarios, beneficios y elementos de valor.",
+            descripcion: "El usuario revisa la información de los programas disponible en el portal, proveniente de los sistemas de contenido y académicos. Como resultado, accede a elementos suficientes para comprender el alcance y características de cada oferta.",
+            fuente: "CMS / PASE / SEA / Fichas", procesamiento: "Expone fichas de programa", destino: "Portal Unificado",
+            transaccion: "Contenido estructurado", tipo_dato: "Dato estructurado (contenido)",
+            integracion: "API REST", crud: "Consumo", capacidad: "Oferta inicial de rutas de aprendizaje", mds: "Paola Nohemi" },
+        ]
+      },
+      "Sugerencias Adicionales": {
+        macroproceso: "Gestionar exploración de oferta educativa",
+        icon: "💡",
+        procesos: [
+          { proceso: "Perfilar intereses del aprendedor",
+            objetivo: "Identificación inicial de intereses, preferencias o señales de comportamiento del usuario para enriquecer su contexto.",
+            descripcion: "El sistema y/o el usuario generan información sobre intereses, necesidades o preferencias a partir de navegación, selección o captura explícita. Como resultado, se forma un perfil inicial que puede apoyar etapas posteriores del journey.",
+            fuente: "Portal Unificado", procesamiento: "Registra preferencias", destino: "Portal Unificado",
+            transaccion: "Datos de perfilamiento", tipo_dato: "Dato analítico (perfilamiento)",
+            integracion: "Event / Batch", crud: "Consumo", capacidad: "Diagnóstico preliminar a aprendedores", mds: "Paola Nohemi" },
+        ]
+      }
+    }
+  },
+  "Definición": {
+    icon: "✅", color: "#8B3A00", colorLight: "#FFF0E6",
+    subetapas: {
+      "Evaluación de Opciones": {
+        macroproceso: "Evaluar y seleccionar oferta educativa",
+        icon: "⚖️",
+        procesos: [
+          { proceso: "Evaluar opciones educativas",
+            objetivo: "Evaluación de programas con base en atributos clave: contenido, duración, modalidad y valor.",
+            descripcion: "El usuario revisa y analiza la información de los programas disponibles considerando temario, duración, modalidad, valor y beneficios. Esta actividad se soporta en contenido estructurado de los sistemas académicos. Como resultado, el usuario construye un entendimiento claro de las opciones disponibles.",
+            fuente: "Portal Unificado", procesamiento: "Procesa comparaciones", destino: "Usuario",
+            transaccion: "Información comparativa", tipo_dato: "Dato derivado (comparación)",
+            integracion: "On-demand", crud: "Consumo", capacidad: "Selección sobre ofertas de aprendizaje", mds: "Paola Nohemi" },
+          { proceso: "Seleccionar programa educativo",
+            objetivo: "Definición de la opción educativa de interés por parte del usuario, con base en la evaluación previa.",
+            descripcion: "El usuario elige un programa específico después de revisar sus características y validar su pertinencia. Como resultado, se concreta una intención clara de inscripción o compra sobre una oferta determinada.",
+            fuente: "Portal Unificado", procesamiento: "Genera intención de compra", destino: "VTEX",
+            transaccion: "Intento de compra", tipo_dato: "Dato transaccional (intención)",
+            integracion: "API", crud: "Creación", capacidad: "Selección sobre ofertas de aprendizaje", mds: "Paola Nohemi" },
+        ]
+      },
+      "Inscripción y Pago": {
+        macroproceso: "Gestionar inscripción y transacción educativa",
+        icon: "💳",
+        procesos: [
+          { proceso: "Crear cuenta de usuario",
+            objetivo: "Registro inicial del usuario mediante la captura de datos requeridos para habilitar su acceso digital.",
+            descripcion: "El usuario proporciona información mínima de identificación y acceso para crear su cuenta. Como resultado, se habilita un registro digital inicial dentro del ecosistema.",
+            fuente: "Portal Unificado", procesamiento: "Captura datos y solicita identidad", destino: "Identity Manager",
+            transaccion: "Datos de registro", tipo_dato: "Dato maestro (usuario base)",
+            integracion: "API / OIDC", crud: "Creación", capacidad: "Registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Generar identidad digital del usuario",
+            objetivo: "Creación de una identidad digital operativa que permita autenticar y reconocer al usuario en las plataformas.",
+            descripcion: "El sistema de identidad genera credenciales, identificadores o atributos básicos para el nuevo usuario. Como resultado, el usuario cuenta con una identidad digital válida para autenticación y acceso.",
+            fuente: "Identity Manager", procesamiento: "Genera credenciales", destino: "Portal",
+            transaccion: "Token / Identidad", tipo_dato: "Dato maestro (identidad)",
+            integracion: "OIDC / OAuth", crud: "Creación", capacidad: "Registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Capturar datos de inscripción",
+            objetivo: "Registro de información personal, académica y operativa necesaria para formalizar la inscripción.",
+            descripcion: "El usuario completa formularios de inscripción con la información requerida por el proceso. Como resultado, se dispone de datos suficientes para continuar con la compra, registro o alta académica.",
+            fuente: "Portal Unificado", procesamiento: "Captura datos personales", destino: "CRM / SEA",
+            transaccion: "Datos de inscripción", tipo_dato: "Dato maestro (aprendedor)",
+            integracion: "API", crud: "Creación", capacidad: "Registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Gestionar carrito de compra educativa",
+            objetivo: "Consolidación de la selección de productos o programas dentro del flujo transaccional previo al pago.",
+            descripcion: "El usuario agrega, revisa o ajusta su selección dentro del carrito de compra. Como resultado, se prepara una orden preliminar con la oferta educativa elegida.",
+            fuente: "VTEX", procesamiento: "Genera orden", destino: "Middleware",
+            transaccion: "Orden de compra", tipo_dato: "Dato transaccional",
+            integracion: "API", crud: "Creación", capacidad: "Comercialización de oferta de aprendizaje", mds: "Hector Colón" },
+          { proceso: "Interrumpir y retomar inscripción",
+            objetivo: "Permitir al aprendedor pausar y continuar su proceso de inscripción sin perder su avance.",
+            descripcion: "El aprendedor abandona el flujo en cualquier etapa (registro o pago) y posteriormente regresa para continuar desde donde lo dejó. Como resultado, mantiene continuidad en su proceso de inscripción.",
+            fuente: "VTEX", procesamiento: "Retoma inscripción", destino: "Middleware",
+            transaccion: "Orden de compra", tipo_dato: "Dato transaccional",
+            integracion: "API", crud: "Creación", capacidad: "Comercialización de oferta de aprendizaje", mds: "Hector Colón" },
+          { proceso: "Procesar pago de programas educativos",
+            objetivo: "Ejecución y validación de la transacción económica asociada a la compra del programa.",
+            descripcion: "El usuario selecciona su método de pago y el ecosistema procesa la operación a través de los habilitadores financieros. Como resultado, se registra una transacción aprobada, rechazada o pendiente de confirmación.",
+            fuente: "VTEX", procesamiento: "Ejecuta transacción", destino: "Middleware / Gestor de Pagos",
+            transaccion: "Datos de pago", tipo_dato: "Dato transaccional (financiero)",
+            integracion: "API / Event", crud: "Creación", capacidad: "Procesamiento de facturas de aprendedores", mds: "Hector Colón" },
+          { proceso: "Aplicar beneficios o descuentos",
+            objetivo: "Permitir al aprendedor reducir el costo de la compra mediante cupones, promociones o beneficios.",
+            descripcion: "El aprendedor ingresa un código promocional o selecciona un beneficio aplicable durante el proceso de compra. Como resultado, se actualiza el monto a pagar antes de realizar la transacción.",
+            fuente: "VTEX", procesamiento: "Ejecuta transacción", destino: "Middleware / Gestos de Pagos",
+            transaccion: "Datos de pago", tipo_dato: "Dato transaccional (financiero)",
+            integracion: "API / Event", crud: "Creación", capacidad: "Procesamiento de facturas de aprendedores", mds: "Hector Colón" },
+          { proceso: "Reintentar pago de programa educativo",
+            objetivo: "Permitir al aprendedor completar la transacción en caso de que el pago no sea exitoso.",
+            descripcion: "Ante un pago rechazado o fallido, el aprendedor intenta nuevamente realizar el pago utilizando el mismo u otro método. Como resultado, puede completar la compra del programa.",
+            fuente: "VTEX", procesamiento: "Registra intento de pago", destino: "Middleware / Gestor de Pagos",
+            transaccion: "Datos de pago", tipo_dato: "Dato transaccional (financiero)",
+            integracion: "API / Event", crud: "Creación", capacidad: "Procesamiento de facturas de aprendedores", mds: "Hector Colón" },
+          { proceso: "Generar comprobante fiscal (CFDI)",
+            objetivo: "Emisión del comprobante fiscal cuando el usuario solicita facturación.",
+            descripcion: "El usuario captura o confirma sus datos fiscales y el sistema genera el comprobante. Como resultado, se crea el registro fiscal de la transacción y, cuando aplica, se activa el flujo hacia MDM (creación de Golden Record solo aquí).",
+            fuente: "Portal / Middleware / Interfactura", procesamiento: "Solicita factura", destino: "Facturador / MDM",
+            transaccion: "Datos fiscales / Golden Record", tipo_dato: "Dato fiscal",
+            integracion: "API", crud: "Creación (MDM SOLO AQUÍ)", capacidad: "Procesamiento de facturas de aprendedores", mds: "Hector Colón" },
+          { proceso: "Confirmar inscripción del aprendedor",
+            objetivo: "Validación final del registro del usuario en el programa adquirido y actualización de su estatus.",
+            descripcion: "El sistema verifica que la compra e inscripción hayan concluido correctamente y actualiza el estatus del usuario. Como resultado, el aprendedor queda formalmente inscrito en la oferta seleccionada.",
+            fuente: "Middleware", procesamiento: "Orquesta inscripción", destino: "CRM / Portal / SEA",
+            transaccion: "Estatus de inscripción", tipo_dato: "Dato operacional",
+            integracion: "API", crud: "Consumo", capacidad: "Registro de aprendedores", mds: "Hector Colón" },
+        ]
+      }
+    }
+  },
+  "Vivencia de Propuesta de Valor": {
+    icon: "🎓", color: "#6B2D8B", colorLight: "#F5EAF9",
+    subetapas: {
+      "Diagnóstico": {
+        macroproceso: "Gestionar experiencia de aprendizaje",
+        icon: "🧭",
+        procesos: [
+          { proceso: "Sincronizar identidad del usuario entre sistemas",
+            objetivo: "Integración y alineación de la identidad del usuario entre los sistemas que participan en su journey.",
+            descripcion: "Los sistemas intercambian y validan atributos de identidad para mantener consistencia operativa. Como resultado, la identidad del usuario queda sincronizada entre las plataformas que la requieren.",
+            fuente: "Identity Manager", procesamiento: "Envía datos consolidados", destino: "TBD",
+            transaccion: "Identidad (solo facturados)", tipo_dato: "Dato maestro consolidado",
+            integracion: "API / SCIM", crud: "Consumo", capacidad: "Mantenimiento de registro de aprendedores", mds: "Hector Colón" },
+        ]
+      },
+      "Aprendizaje": {
+        macroproceso: "Gestionar experiencia de aprendizaje",
+        icon: "📚",
+        procesos: [
+          { proceso: "Registrar aprendedor en sistema académico",
+            objetivo: "Alta formal del usuario en el sistema académico como participante de una oferta educativa.",
+            descripcion: "El sistema académico recibe y registra la inscripción del usuario en el programa correspondiente. Como resultado, el usuario queda reconocido como estudiante o aprendedor dentro de la operación académica.",
+            fuente: "SEA", procesamiento: "Envía inscripción", destino: "LXP / LMS",
+            transaccion: "Registro académico", tipo_dato: "Dato maestro académico",
+            integracion: "API", crud: "Creación", capacidad: "Registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Provisionar acceso a plataformas de aprendizaje",
+            objetivo: "Asignación de credenciales, permisos y accesos para que el usuario ingrese a las plataformas.",
+            descripcion: "Los sistemas de aprendizaje reciben la instrucción de habilitar al usuario en la oferta adquirida. Como resultado, se activan sus accesos y queda listo para iniciar su experiencia educativa.",
+            fuente: "SEA", procesamiento: "Envía usuario inscrito", destino: "LXP / LMS",
+            transaccion: "Usuario habilitado", tipo_dato: "Dato operacional",
+            integracion: "API / LTI", crud: "Creación", capacidad: "Entrega de aprendizaje y enseñanza", mds: "Hector Colón" },
+          { proceso: "Consumir contenido educativo",
+            objetivo: "Interacción del usuario con materiales, recursos y contenidos educativos de la plataforma.",
+            descripcion: "El aprendedor accede a videos, lecturas, recursos y demás materiales del programa. Como resultado, avanza en la vivencia del aprendizaje y genera trazabilidad de uso.",
+            fuente: "LXP / LMS", procesamiento: "Registra interacción", destino: "SEA",
+            transaccion: "Progreso / Actividad", tipo_dato: "Dato operacional",
+            integracion: "Event / Batch", crud: "Creación", capacidad: "Entrega de aprendizaje y enseñanza", mds: "Hector Colón" },
+          { proceso: "Ejecutar actividades de aprendizaje",
+            objetivo: "Realización de ejercicios, tareas, evaluaciones u otras actividades requeridas del programa.",
+            descripcion: "El usuario completa actividades académicas dentro de la plataforma conforme a la dinámica del programa. Como resultado, se generan evidencias de participación y avance.",
+            fuente: "LXP / LMS", procesamiento: "Registra resultados", destino: "SEA",
+            transaccion: "Calificaciones", tipo_dato: "Dato operacional",
+            integracion: "API", crud: "Creación", capacidad: "Entrega de aprendizaje y enseñanza", mds: "Hector Colón" },
+          { proceso: "Medir desempeño académico del aprendedor",
+            objetivo: "Evaluación del avance y resultados académicos con base en actividades, entregables y evaluaciones.",
+            descripcion: "El sistema calcula o registra calificaciones, cumplimiento y progreso a partir del trabajo realizado. Como resultado, se obtiene una medición formal del desempeño académico.",
+            fuente: "LXP / LMS", procesamiento: "Calcula resultados", destino: "SEA",
+            transaccion: "Desempeño", tipo_dato: "Dato analítico",
+            integracion: "API", crud: "Creación", capacidad: "Evaluación del aprendizaje", mds: "Hector Colón" },
+        ]
+      }
+    }
+  },
+  "Reconocimiento": {
+    icon: "🏆", color: "#8B6B00", colorLight: "#FBF6E6",
+    subetapas: {
+      "Acreditación": {
+        macroproceso: "Gestionar acreditación y certificación",
+        icon: "🎖️",
+        procesos: [
+          { proceso: "Validar cumplimiento académico del programa",
+            objetivo: "Verificación de que el usuario satisface los criterios académicos y operativos para acreditar el programa.",
+            descripcion: "Los sistemas académicos y de aprendizaje revisan si el usuario cumple con los requisitos de finalización, evaluación o asistencia. Como resultado, se determina su elegibilidad para acreditación o reconocimiento.",
+            fuente: "SEA", procesamiento: "Evalúa criterios", destino: "Accredible",
+            transaccion: "Datos de certificación", tipo_dato: "Dato operacional",
+            integracion: "API", crud: "Creación", capacidad: "Validación de adquisición de habilidades", mds: "Hector Colón" },
+          { proceso: "Emitir certificado o credencial digital",
+            objetivo: "Generación de una credencial, insignia o certificado digital que formaliza el logro académico.",
+            descripcion: "El sistema de credenciales emite el documento o insignia correspondiente con base en la validación previa. Como resultado, el usuario obtiene una evidencia formal y verificable de su aprendizaje.",
+            fuente: "Accredible", procesamiento: "Emite insignia", destino: "Portal Unificado",
+            transaccion: "Certificado digital", tipo_dato: "Dato maestro (credencial)",
+            integracion: "API", crud: "Creación", capacidad: "Gestión de certificaciones e insignias", mds: "Hector Colón" },
+          { proceso: "Registrar resultados académicos del aprendedor",
+            objetivo: "Almacenamiento y consolidación de los resultados académicos en los repositorios institucionales.",
+            descripcion: "Los sistemas envían o registran el resultado final del usuario en los repositorios definidos. Como resultado, se conserva el historial académico y se habilita su consulta posterior.",
+            fuente: "SEA / LXP", procesamiento: "Envía resultados", destino: "SEA",
+            transaccion: "Historial académico", tipo_dato: "Dato histórico",
+            integracion: "Batch", crud: "Creación", capacidad: "Gestión del progreso del aprendedor", mds: "Hector Colón" },
+        ]
+      }
+    }
+  },
+  "Transversal": {
+    icon: "⚙️", color: "#2A5C6B", colorLight: "#E6F3F5",
+    subetapas: {
+      "Identidad": {
+        macroproceso: "Gestionar identidad del aprendedor",
+        icon: "🔐",
+        procesos: [
+          { proceso: "Autenticar usuario en plataformas digitales",
+            objetivo: "Validación del acceso del usuario mediante sus credenciales e identidad digital.",
+            descripcion: "El usuario intenta ingresar a una plataforma y el sistema de identidad valida sus credenciales y sesión. Como resultado, se concede o rechaza el acceso según corresponda.",
+            fuente: "Portal Unificado", procesamiento: "Solicita autenticación", destino: "Identity Manager",
+            transaccion: "Token", tipo_dato: "Dato operacional",
+            integracion: "OIDC", crud: "Consumo", capacidad: "Mantenimiento de registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Unificar identidad del usuario (Golden Record)",
+            objetivo: "Consolidación de múltiples identificadores de un mismo usuario en un registro institucional único.",
+            descripcion: "Los sistemas comparan, relacionan o consolidan identificadores y atributos del usuario. Como resultado, se genera un registro unificado; en este modelo aplica principalmente para usuarios con proceso de facturación.",
+            fuente: "Identity Manager", procesamiento: "Envía identificadores", destino: "MDM",
+            transaccion: "Identidad consolidada", tipo_dato: "Dato maestro",
+            integracion: "API", crud: "Creación (condicionada)", capacidad: "Mantenimiento de registro de aprendedores", mds: "Hector Colón" },
+          { proceso: "Distribuir identidad a sistemas dependientes",
+            objetivo: "Propagación de la identidad y atributos del usuario hacia los sistemas que requieren operar con esa información.",
+            descripcion: "El sistema que concentra o administra identidad distribuye atributos hacia plataformas dependientes. Como resultado, los sistemas consumidores operan con datos consistentes del usuario.",
+            fuente: "MDM", procesamiento: "Distribuye identidad", destino: "CRM / SEA / LXP",
+            transaccion: "Datos de identidad", tipo_dato: "Dato maestro",
+            integracion: "API", crud: "Consumo", capacidad: "Mantenimiento de registro de aprendedores", mds: "Hector Colón" },
+        ]
+      },
+      "Analítica": {
+        macroproceso: "Gestionar datos y analítica del ecosistema",
+        icon: "📊",
+        procesos: [
+          { proceso: "Capturar retroalimentación del aprendedor",
+            objetivo: "Recolección estructurada de opiniones, percepción y satisfacción del usuario respecto a su experiencia.",
+            descripcion: "El usuario responde encuestas o mecanismos de retroalimentación habilitados por la organización. Como resultado, se obtiene información cualitativa y cuantitativa para mejora continua.",
+            fuente: "Qualtrics", procesamiento: "Captura respuestas", destino: "FUD",
+            transaccion: "Feedback", tipo_dato: "Dato analítico",
+            integracion: "API / Batch", crud: "Creación", capacidad: "Gestión de relación con aprendedores", mds: "Hector Colón" },
+          { proceso: "Capturar comportamiento digital del usuario",
+            objetivo: "Registro de eventos de navegación, interacción y uso del usuario dentro de las plataformas digitales.",
+            descripcion: "Las herramientas de tracking registran la actividad del usuario en distintos puntos de contacto. Como resultado, se genera evidencia de comportamiento útil para analítica y optimización.",
+            fuente: "Portal / Clarity", procesamiento: "Genera eventos", destino: "FUD",
+            transaccion: "Datos de comportamiento", tipo_dato: "Dato analítico",
+            integracion: "Event streaming", crud: "Creación", capacidad: "Gestión de relación con aprendedores", mds: "Hector Colón" },
+          { proceso: "Integrar datos del ecosistema digital",
+            objetivo: "Consolidación de datos operativos, transaccionales, académicos y analíticos de múltiples habilitadores.",
+            descripcion: "Los sistemas fuente envían información a un repositorio central o capa analítica. Como resultado, se dispone de una visión integrada para seguimiento y explotación.",
+            fuente: "Sistemas varios", procesamiento: "Envía datos", destino: "FUD",
+            transaccion: "Dataset consolidado", tipo_dato: "Dato consolidado",
+            integracion: "ETL", crud: "Creación", capacidad: "Analítica Avanzada", mds: "Hector Colón" },
+          { proceso: "Generar insights para toma de decisiones",
+            objetivo: "Análisis de la información consolidada para identificar patrones, hallazgos y oportunidades de mejora.",
+            descripcion: "Los equipos de negocio y analítica explotan la información disponible en repositorios analíticos. Como resultado, se generan hallazgos accionables para optimizar el ecosistema, la oferta y la experiencia del usuario.",
+            fuente: "FUD", procesamiento: "Procesa información", destino: "BI",
+            transaccion: "Insights", tipo_dato: "Dato analítico",
+            integracion: "Batch", crud: "Consumo", capacidad: "Analítica Avanzada", mds: "Hector Colón" },
+        ]
+      }
+    }
+  }
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let activeJourney = 'Descubrimiento';
+let activeSub     = null;
+let searchQuery   = '';
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getColor(j)      { return JOURNEY_DATA[j]?.color      || '#666'; }
+function getColorLight(j) { return JOURNEY_DATA[j]?.colorLight || '#eee'; }
+function totalProcesses() {
+  return Object.values(JOURNEY_DATA).reduce((t,j)=>
+    t + Object.values(j.subetapas).reduce((t2,s)=> t2 + s.procesos.length, 0), 0);
+}
+function journeyCount(j) {
+  return Object.values(JOURNEY_DATA[j].subetapas).reduce((t,s)=> t+s.procesos.length, 0);
+}
+function hl(text) {
+  if (!searchQuery) return text;
+  const re = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+function matchesSearch(p) {
+  if (!searchQuery) return true;
+  const q = searchQuery.toLowerCase();
+  return [p.proceso,p.objetivo,p.descripcion,p.fuente,p.destino,
+          p.transaccion,p.tipo_dato,p.capacidad].some(v => v.toLowerCase().includes(q));
+}
+
+// ── RENDER STATS ──────────────────────────────────────────────────────────────
+function renderStats() {
+  const journeys = Object.keys(JOURNEY_DATA).length;
+  const subs = Object.values(JOURNEY_DATA).reduce((t,j)=> t+Object.keys(j.subetapas).length, 0);
+  const procs = totalProcesses();
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="stat-val">${journeys}</span><span class="stat-lbl">Etapas Journey</span></div>
+    <div class="stat"><span class="stat-val">${subs}</span><span class="stat-lbl">Subetapas</span></div>
+    <div class="stat"><span class="stat-val">${procs}</span><span class="stat-lbl">Procesos</span></div>
+    <div class="stat"><span class="stat-val">14</span><span class="stat-lbl">Habilitadores</span></div>`;
+}
+
+// ── RENDER RAIL ───────────────────────────────────────────────────────────────
+function renderRail() {
+  const rail = document.getElementById('journey-rail');
+  rail.innerHTML = Object.entries(JOURNEY_DATA).map(([name, data]) => `
+    <div class="j-tab ${name===activeJourney?'active':''}"
+         style="--jc:${data.color}"
+         onclick="selectJourney('${name}')">
+      <span class="j-icon">${data.icon}</span>
+      <span class="j-name">${name}</span>
+      <span class="j-count">${journeyCount(name)}</span>
+    </div>`).join('');
+}
+
+// ── RENDER SIDEBAR ────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const jdata = JOURNEY_DATA[activeJourney];
+  const color = getColor(activeJourney);
+  let html = '';
+  for (const [sname, sdata] of Object.entries(jdata.subetapas)) {
+    const cnt = sdata.procesos.filter(matchesSearch).length;
+    if (searchQuery && cnt === 0) continue;
+    html += `
+      <div class="sb-sub ${sname===activeSub?'active':''}"
+           style="--jc:${color}"
+           onclick="selectSub('${sname}')">
+        <span>${sdata.icon}</span>
+        <span>${sname}</span>
+        <span class="sb-count">${cnt}</span>
+      </div>`;
+  }
+  document.getElementById('sidebar').innerHTML = `
+    <div class="sb-section">
+      <div class="sb-journey-label" style="--jc:${color}">
+        <span>${jdata.icon}</span>${activeJourney}
+      </div>
+      ${html}
+    </div>`;
+}
+
+// ── RENDER CONTENT ────────────────────────────────────────────────────────────
+function renderContent() {
+  const jdata  = JOURNEY_DATA[activeJourney];
+  const color  = getColor(activeJourney);
+  const colorL = getColorLight(activeJourney);
+  let html = '';
+  let totalMatches = 0;
+
+  for (const [sname, sdata] of Object.entries(jdata.subetapas)) {
+    if (activeSub && sname !== activeSub) continue;
+    const matched = sdata.procesos.filter(matchesSearch);
+    if (searchQuery && matched.length === 0) continue;
+    totalMatches += matched.length;
+
+    html += `
+      <div class="subetapa-block" id="sub-${sname.replace(/\s+/g,'-')}">
+        <div class="sub-header" style="--jc-l:${colorL}">
+          <div class="sub-dot" style="background:${color}">${sdata.icon}</div>
+          <div class="sub-meta">
+            <div class="sub-name">${hl(sname)}</div>
+            <div class="sub-macro">${hl(sdata.macroproceso)}</div>
+          </div>
+          <div class="sub-badge" style="background:${colorL};color:${color}">${matched.length} proceso${matched.length!==1?'s':''}</div>
+        </div>
+        <div class="proc-grid">
+          ${matched.map((p,i) => renderCard(p, color, colorL, `${sname}-${i}`)).join('')}
+        </div>
+      </div>`;
+  }
+
+  if (!html) {
+    html = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <p>No se encontraron procesos que coincidan con "<strong>${searchQuery}</strong>"</p>
+    </div>`;
+  }
+
+  document.getElementById('content').innerHTML = html;
+  document.getElementById('result-count').textContent =
+    searchQuery ? `${totalMatches} resultado${totalMatches!==1?'s':''}` : '';
+}
+
+function renderCard(p, color, colorL, id) {
+  const crudColor = p.crud==='Creación'?'#6A1B9A':p.crud==='Consumo'?'#00695C':'#666';
+  return `
+    <div class="proc-card" id="card-${id}" onclick="toggleCard('card-${id}')">
+      <div class="proc-top">
+        <div class="proc-name" style="color:${color}">${hl(p.proceso)}</div>
+        <div class="proc-toggle">▾</div>
+      </div>
+      <div class="proc-tags">
+        ${p.fuente?`<span class="tag tag-fuente">📤 ${hl(p.fuente)}</span>`:''}
+        ${p.destino?`<span class="tag tag-destino">📥 ${hl(p.destino)}</span>`:''}
+        ${p.tipo_dato?`<span class="tag tag-tipo">🗂 ${hl(p.tipo_dato)}</span>`:''}
+        ${p.integracion?`<span class="tag tag-int">🔗 ${p.integracion}</span>`:''}
+        ${p.crud && p.crud!=='—'?`<span class="tag tag-crud">${p.crud}</span>`:''}
+      </div>
+      <div class="proc-body">
+        <div class="proc-objetivo">${hl(p.objetivo)}</div>
+        <div class="proc-desc">${hl(p.descripcion)}</div>
+        <div class="proc-flow" style="border-color:${color}20">
+          <span class="flow-sys" style="background:${colorL};color:${color}">${p.fuente}</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-proc">${p.procesamiento}</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-dest">${p.destino}</span>
+        </div>
+        <div class="proc-meta-grid">
+          <div class="proc-meta-item">
+            <div class="pm-label">Transacción</div>
+            <div class="pm-value">${hl(p.transaccion)}</div>
+          </div>
+          <div class="proc-meta-item">
+            <div class="pm-label">Tipo de dato</div>
+            <div class="pm-value">${hl(p.tipo_dato)}</div>
+          </div>
+          <div class="proc-meta-item">
+            <div class="pm-label">Integración</div>
+            <div class="pm-value">${p.integracion}</div>
+          </div>
+          <div class="proc-meta-item">
+            <div class="pm-label">CRUD</div>
+            <div class="pm-value" style="color:${crudColor};font-weight:600">${p.crud}</div>
+          </div>
+        </div>
+        ${p.capacidad?`<div class="proc-capacidad" style="border-color:${color};background:linear-gradient(135deg,${colorL},#fff)">
+          <div class="pc-label" style="color:${color}">Capacidad relacionada</div>
+          <div>${hl(p.capacidad)}</div>
+        </div>`:''}
+        <div style="margin-top:8px;font-size:10px;color:var(--light)">MDS: ${p.mds}</div>
+      </div>
+    </div>`;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function selectJourney(name) {
+  activeJourney = name;
+  activeSub = null;
+  renderRail();
+  renderSidebar();
+  renderContent();
+  document.getElementById('content').scrollTop = 0;
+}
+
+function selectSub(name) {
+  activeSub = activeSub === name ? null : name;
+  renderSidebar();
+  renderContent();
+  if (activeSub) {
+    const el = document.getElementById(`sub-${name.replace(/\s+/g,'-')}`);
+    if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+function toggleCard(id) {
+  document.getElementById(id)?.classList.toggle('expanded');
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+document.getElementById('global-search').addEventListener('input', function() {
+  searchQuery = this.value.trim();
+  // If searching, show all journeys
+  if (searchQuery) {
+    // Render all journeys
+    let html = '';
+    let total = 0;
+    for (const [jname, jdata] of Object.entries(JOURNEY_DATA)) {
+      const color  = getColor(jname);
+      const colorL = getColorLight(jname);
+      for (const [sname, sdata] of Object.entries(jdata.subetapas)) {
+        const matched = sdata.procesos.filter(matchesSearch);
+        if (!matched.length) continue;
+        total += matched.length;
+        html += `<div class="subetapa-block">
+          <div class="sub-header" style="--jc-l:${colorL}">
+            <div class="sub-dot" style="background:${color}">${jdata.icon}</div>
+            <div class="sub-meta">
+              <div class="sub-name" style="font-size:13px">${jname} › ${hl(sname)}</div>
+              <div class="sub-macro">${sdata.macroproceso}</div>
+            </div>
+            <div class="sub-badge" style="background:${colorL};color:${color}">${matched.length}</div>
+          </div>
+          <div class="proc-grid">
+            ${matched.map((p,i) => renderCard(p, color, colorL, `search-${jname}-${i}`)).join('')}
+          </div>
+        </div>`;
+      }
+    }
+    if (!html) html = `<div class="empty"><div class="empty-icon">🔍</div><p>Sin resultados para "<strong>${searchQuery}</strong>"</p></div>`;
+    document.getElementById('content').innerHTML = html;
+    document.getElementById('result-count').textContent = `${total} resultado${total!==1?'s':''}`;
+  } else {
+    renderContent();
+    document.getElementById('result-count').textContent = '';
+  }
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderStats();
+renderRail();
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
