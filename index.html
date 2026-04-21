@@ -322,9 +322,9 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
         <!-- CENTER: two groups side by side -->
         <div class="col-center">
 
-          <!-- GROUP A (dashed border): Accredible, Qualtrics, LXP, TEC bot, CRM -->
+          <!-- GROUP A (dashed border): Accredible, Qualtrics, LXP, TEC bot, CRM, PASE -->
           <div class="group-a">
-            <div class="group-label">Plataformas LXP / Aprendizaje / CRM</div>
+            <div class="group-label">Plataformas LXP / Aprendizaje / CRM / Expertos</div>
 
             <div class="node type-transversal commercial" id="node-accredible" onclick="selectSystem('accredible')" style="width:130px">
               <div class="node-dot dot-blue"></div>
@@ -344,6 +344,12 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
               <div class="node-sub">Aprendizaje en línea</div>
             </div>
 
+            <div class="node type-transversal" id="node-pase" onclick="selectSystem('pase')" style="width:130px">
+              <div class="node-dot dot-purple"></div>
+              <div class="node-name">PASE</div>
+              <div class="node-sub">Gestión de Expertos</div>
+            </div>
+
             <div class="node type-new" id="node-tecbot2" onclick="selectSystem('tecbot')" style="width:130px">
               <div class="node-dot dot-purple"></div>
               <div class="node-name">TEC bot VPAF</div>
@@ -354,6 +360,12 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
               <div class="node-dot dot-purple"></div>
               <div class="node-name">CRM (Salesforce)</div>
               <div class="node-sub">CRM institucional</div>
+            </div>
+
+            <div class="node type-transversal" id="node-pase" onclick="selectSystem('pase')" style="width:130px">
+              <div class="node-dot dot-purple"></div>
+              <div class="node-name">PASE</div>
+              <div class="node-sub">Gestión Expertos</div>
             </div>
           </div>
 
@@ -429,8 +441,13 @@ svg.arrows{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:
         </div>
       </div>
 
-      <!-- ROW BOTTOM: Middleware 26 -->
-      <div class="row-bottom">
+      <!-- ROW BOTTOM: IAM + Middleware 26 -->
+      <div class="row-bottom" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="node-bar" style="background:var(--existing-t-light);border-color:#A8D5B8;position:relative;cursor:pointer" id="node-idm" onclick="selectSystem('idm')">
+          <div class="node-dot" style="background:#7F77DD;position:absolute;top:10px;left:12px"></div>
+          <div class="node-name" style="color:var(--existing-t);font-size:14px;font-weight:600">Identity Manager (IAM To-Be)</div>
+          <div class="node-sub" style="font-size:11px;color:var(--text-muted)">Núcleo transversal · CN NVI+consecutivo · RBAC · MFA · SAML/OIDC</div>
+        </div>
         <div class="node-bar bar-middleware" id="node-middleware" onclick="selectSystem('middleware')" style="position:relative">
           <div class="node-dot" style="background:var(--new);position:absolute;top:10px;left:12px"></div>
           <div class="node-name">Middleware 26</div>
@@ -477,10 +494,22 @@ const SYSTEMS = {
     typeLabel: "Nuevo habilitador — Núcleo del ecosistema",
     dot: "purple",
     commercial: false,
-    desc: "Núcleo de la experiencia digital del aprendedor VPAF. Punto único de entrada para descubrimiento, exploración, compra, inscripción y seguimiento de programas educativos. Incluye vista pública (no autenticada) y vista privada (aprendedor autenticado).",
-    funciones: ["Catálogo y comparador de programas educativos","Registro y autenticación del aprendedor (pre-MDM y post-MDM)","Proceso de compra integrado con e-commerce VTEX","Facturación vía Interfactura","Estado de cuenta académico (Banner TEC y UTM)","Historial de pedidos y programas inscritos","Visualización de progreso de aprendizaje (LXP, TLG)","Insignias y certificados (Accredible)","Bot conversacional (Tec.bot VPAF)","Barra de búsqueda inteligente (Search bar / Tec.gpt)","Encuestas NPS (Qualtrics, Tec.feedback)","Estado de cuenta financiero y perfil del aprendedor"],
-    maestros: ["ID Usuario (UUID)","Email (llave de identidad federada)","PIDEN (Arroba MDM)","Nombre(s) y apellidos","CURP","RFC","Fecha de nacimiento","Teléfono / Mobile","Afiliación / Sub-Afiliación Z-Aprendedor"],
-    brechas: ["Sub-Afiliación Z-Aprendedor PENDIENTE — bloqueante MVP1","3 portales simultáneos en octubre (C-22)","Catálogos SEA cargados manualmente en CMS (C-21)"],
+    desc: "Núcleo de la experiencia digital del aprendedor VPAF. Punto único de entrada para descubrimiento, exploración, compra, inscripción y seguimiento. Aprovisionador del IAM To-Be. Componentes UI: 4 Carrusel, 10 Home, 10 PDP, 23 Perfil. Integraciones: VTEX, CMS, PASE, Search Bar, Tec.bot, ServiceNow, LXP, MDM/Identidad, Facturador, Estado de Cuenta.",
+    funciones: [
+      "Portal Público: redirección/deep linking, UTM tracking, GA4, marca/design system, home con Hero Video + Quiz + Carruseles (HU1-HU10)",
+      "Exploración: landing oferta académica, buscador predictivo vectorizado, navegación por taxonomía oficial, PLP filtros/subcategorías (HU13-HU19, HU76-HU79)",
+      "Registro/Identidad: autoregistro eID-VPAF (6 datos), login tradicional + SSO multimétodo, recuperación contraseña, expiración sesión 15min, cierre remoto, bloqueo 5 intentos (HU11, HU20-HU21, HU37-HU40)",
+      "Perfil (23 componentes): info personal, datos facturación RFC/régimen, wishlist, cupones, historial compras, rutas aprendizaje, progress bar, edición datos (HU22-HU30, HU73)",
+      "Mi Aprendizaje: progreso + deep linking LXP/LMS, rachas/streaks, calendario, insignias Accredible, portafolio (HU31-HU36)",
+      "E-Commerce VTEX: catálogo multimarca PLP, PDP 10 componentes (fechas/SKU, docentes PASE, syllabus, video, cupo), carrito persistente, checkout, pagos TecPay, cupones, carrito abandonado, ratings (HUEC01-EC99)",
+      "Soporte: sticky bot flotante, agente IA, asesor por canal, FAQ (HU18, HU60-HU62, HUEC02)",
+      "Contenido: casos éxito, testimonios, about us, CMS editorial (HU55-HU59)",
+      "Post-compra: confirmación, notificaciones inicio programa, acceso material, factura, reembolso (HUEC46-EC71)",
+      "Cookies: consentimiento GDPR/LFPDPPP (HU7)",
+      "Retroalimentación del portal categorizada (HU8)"
+    ],
+    maestros: ["Id / CN (NVI + consecutivo) — identificador único global IAM","Email (llave federada, 5 reglas validación Opentext)","Nombre(s) / Apellidos (eID-VPAF)","Teléfono móvil (E.164)","PIDEN (Arroba MDM, solo facturados)","RFC / Código Postal (post-compra)","Afiliación / Sub-Afiliación Z-Aprendedor","UTM params","Datos conexión técnicos (IP, dispositivo)","Preferencias cookies","Wishlist","Progreso perfil (%)"],
+    brechas: ["Sub-Afiliación Z-Aprendedor PENDIENTE — bloqueante MVP1","3 portales simultáneos en octubre (C-22)","Catálogos SEA cargados manualmente en CMS (C-21)","Relación instructor-curso/SKU en Google Sheets","Temario/Curriculum: no claro si VTEX o SEA","Hero Video: definir almacenamiento Azure Blob+CDN"],
     release: "R1–R5"
   },
   sitio: {
@@ -513,10 +542,10 @@ const SYSTEMS = {
     typeLabel: "Nuevo habilitador",
     dot: "purple",
     commercial: false,
-    desc: "Bot conversacional del ecosistema VPAF construido sobre Azure Bot Service. Se incrusta en el Portal como widget Angular/Web Component. R2: soporte general. R5: skills personalizados con datos del aprendedor.",
-    funciones: ["Asistencia conversacional al visitante y aprendedor","Escalamiento a tickets en ServiceNow","Skills personalizados: estado de cuenta, progreso (R5)","Integración con IA (Semantic Kernel / Tec.gpt)"],
-    maestros: ["Direct Line Token (efímero)","userAuthStatus (estado de sesión del usuario)","ID Conversación"],
-    brechas: ["Skills con datos del aprendedor son scope de R5 (no R2)","Dependencia de estabilización arquitectónica (LUIS → Semantic Kernel)"],
+    desc: "Bot conversacional del ecosistema VPAF construido sobre Azure Bot Service. Se incrusta en el Portal como widget Angular/Web Component (sticky flotante esquina inferior derecha en todas las páginas públicas). N0/N1/N2 de atención IA (Chatbot MVP). R2: soporte general. R5: skills personalizados con datos del aprendedor.",
+    funciones: ["Sticky Agente de Ayuda flotante en todas las páginas públicas (HU61)","Motor de respuestas desde base de conocimiento predefinida (HU62)","Habilitación N0 (IA), N1 (agente vivencia), N2 (especialista funcional) — Chatbot MVP","Procesos de conexión entre niveles de soporte","Asistencia conversacional al visitante y aprendedor","Escalamiento a tickets en ServiceNow","Skills personalizados: estado de cuenta, progreso (R5)","Integración con IA (Semantic Kernel / Tec.gpt)","Agente IA en ecommerce para dudas de producto (HUEC02/EC20/EC43)"],
+    maestros: ["Direct Line Token (efímero)","userAuthStatus (estado de sesión del usuario)","ID Conversación","Base de conocimiento (FAQ autorizadas)"],
+    brechas: ["Skills con datos del aprendedor son scope de R5 (no R2)","Dependencia de estabilización arquitectónica (LUIS → Semantic Kernel)","Identificar flujos ServiceNow y gap con procesos nuevos"],
     release: "R2, R5"
   },
   cms: {
@@ -525,10 +554,10 @@ const SYSTEMS = {
     typeLabel: "Habilitador transversal ya existente",
     dot: "blue",
     commercial: true,
-    desc: "Content Management System. Drupal headless como fuente de contenido editorial y páginas del Portal. El Portal consume el CMS vía JSON:API (GET). En R1: sitio informativo. En R3: Portal Institucional completo.",
-    funciones: ["Gestión de contenido editorial del Portal","Catálogo visual de programas (imágenes, recursos)","Fichas técnicas e información institucional","Contenido para Search Bar"],
-    maestros: ["ID Nodo (Drupal)","Tipo de contenido (bundle)","Slug / URL","Imagen de programa","Texto de descripción"],
-    brechas: ["Catálogos de SEA se cargan manualmente al CMS en abril (C-21) — sin integración automática SEA → CMS"],
+    desc: "Content Management System. Drupal headless como fuente de contenido editorial y páginas del Portal. El Portal consume el CMS vía JSON:API (GET). En R1: sitio informativo. En R3: Portal Institucional completo. Almacena: contenido editorial, casos de éxito (HU56), testimonios (HU58), FAQ (HU60), About Us (HU59), landing pages, Hero Video config (Sharepoint o Drupal).",
+    funciones: ["Gestión de contenido editorial del Portal","Catálogo visual de programas (imágenes, recursos)","Fichas técnicas e información institucional","Contenido para Search Bar","Casos de éxito aprobados por negocio/marca (HU56)","Testimonios con contenido mínimo obligatorio (HU58)","FAQ organizadas por categoría (HU60)","About Us con acreditaciones y alianzas (HU59)","Configuración Hero Video (almacenamiento Azure Blob + CDN)","Landing pages por marca (HUEC04)"],
+    maestros: ["ID Nodo (Drupal)","Tipo de contenido (bundle)","Slug / URL","Imagen de programa","Texto de descripción","Casos de éxito (contenido curado)","Testimonios (texto + contexto persona)","FAQ (pregunta + respuesta + categoría)"],
+    brechas: ["Catálogos de SEA se cargan manualmente al CMS en abril (C-21) — sin integración automática SEA → CMS","Hero Video: definir si config va en Sharepoint o Drupal"],
     release: "R1, R3"
   },
   fud: {
@@ -573,10 +602,10 @@ const SYSTEMS = {
     typeLabel: "Habilitador VPAF ya existente",
     dot: "blue",
     commercial: true,
-    desc: "Learning Experience Platform. Plataforma de aprendizaje en línea del ecosistema VPAF. Gestiona el acceso a contenidos, progreso del aprendedor y acreditación de módulos.",
-    funciones: ["Entrega de contenidos de aprendizaje en línea","Gestión del progreso del aprendedor","Emisión de datos de acreditación hacia SEA","Activación de encuestas NPS (Tec.feedback)","Sincronización de calificaciones con SEA"],
-    maestros: ["ID Aprendedor (Cypher)","Email (login_id)","ID Curso / Módulo","Estado de Progreso","Porcentaje de Avance","Calificación Final"],
-    brechas: ["Transferencia de calificaciones Cypher → SEA requiere proceso manual o integración pendiente"],
+    desc: "Learning Experience Platform. Plataforma de aprendizaje en línea del ecosistema VPAF. Gestiona acceso a contenidos, progreso del aprendedor y acreditación de módulos. SSO desde Portal Unificado (LXP-003). Correos de bienvenida por modalidad: presencial vía asesor (LXP-001) y ecommerce (LXP-002). Carga masiva de fechas, sesiones virtuales, ligas Zoom y criterios de evaluación (LXP-010 a LXP-015). Informes automatizados de progreso (LXP-019 a LXP-021).",
+    funciones: ["Entrega de contenidos de aprendizaje en línea","SSO desde Portal Unificado (LXP-003)","Correos de bienvenida por modalidad: presencial/asesor y ecommerce (LXP-001/002)","Gestión del progreso del aprendedor","Carga masiva: fechas inicio, sesiones virtuales, ligas Zoom, criterios evaluación (LXP-010 a LXP-015)","Informes automatizados progreso participante/grupo/generación (LXP-019 a LXP-021)","Contacto y soporte al aprendedor (LXP-022/023)","Impersonalización para validar incidencias (LXP-024)","Emisión de datos de acreditación hacia SEA","Sincronización de calificaciones con SEA"],
+    maestros: ["ID Aprendedor (Cypher)","Email (login_id)","ID Curso / Módulo","Estado de Progreso","Porcentaje de Avance","Calificación Final","Fechas inicio módulos","Ligas Zoom sesiones virtuales"],
+    brechas: ["Transferencia de calificaciones Cypher → SEA requiere proceso manual o integración pendiente","Conexión ecommerce ↔ SIS: qué información se sincronizará (LXP-002)","Definición de personalización de plantilla para notificaciones por correo (LXP-001)"],
     release: "R4"
   },
   crm: {
@@ -585,11 +614,37 @@ const SYSTEMS = {
     typeLabel: "Habilitador transversal ya existente",
     dot: "purple",
     commercial: true,
-    desc: "CRM institucional. Gestiona el ciclo de vida del prospecto y aprendedor desde el primer contacto hasta la conversión. HubSpot recibe leads antes que Salesforce (C-18 arquitectónico).",
-    funciones: ["Gestión del prospecto y oportunidad de venta","Flujos de remarketing por carrito abandonado","Sincronización del perfil del aprendedor","Visibilidad del estado del proceso de compra al Portal","Integración con PASE (IdExperto_PASE)"],
-    maestros: ["Rol / Subrol (Persona Física / Moral)","Datos Generales (Nombre, CURP, RFC, Fecha nac.)","Datos de Contacto (email, teléfono)","ID Oportunidad (IdOportunidad)"],
-    brechas: ["HubSpot recibe leads antes que Salesforce — flujo C-18 sin documentar completamente","Coexistencia de datos limpios nuevos con datos sucios legacy (DP-01)"],
+    desc: "CRM institucional. Gestiona el ciclo de vida del prospecto y aprendedor desde el primer contacto hasta la conversión. HubSpot recibe leads antes que Salesforce (C-18). Formulario de asesor conectado a base comercial (HU66 sugiere Marketing Cloud, actualmente HubSpot). Leads capturados desde About Us (HU59-C) y formularios del Portal.",
+    funciones: ["Gestión del prospecto y oportunidad de venta","Captura de leads desde Portal: formularios, About Us (HU59-C), asesor (HUEC06)","Flujos de remarketing por carrito abandonado (HUEC26)","Sincronización del perfil del aprendedor","Visibilidad del estado del proceso de compra al Portal","Integración con PASE (IdExperto_PASE)","Seguimiento con recomendaciones post-interacción (HUEC08)"],
+    maestros: ["Rol / Subrol (Persona Física / Moral)","Datos Generales (Nombre, CURP, RFC, Fecha nac.)","Datos de Contacto (email, teléfono)","ID Oportunidad (IdOportunidad)","UTM de origen del lead"],
+    brechas: ["HubSpot recibe leads antes que Salesforce — flujo C-18 sin documentar completamente","Coexistencia de datos limpios nuevos con datos sucios legacy (DP-01)","Formulario asesor: definir si Marketing Cloud o HubSpot (HU66)"],
     release: "R3"
+  },
+  pase: {
+    name: "PASE (Gestión de Expertos)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: false,
+    desc: "Portal de Apoyo a la Selección de Expertos. Repositorio central de perfiles de instructores y coordinadores de Educación Continua. Infraestructura: IIS 10 / Azure VM + SQL Server 2012. Expone 4 APIs REST (Semblanza full/lean, Activos total/participando, I-Portafolio). Integración mensual Qualtrics (NPS). Categorización GyT diaria. Alimenta componente Asesores/Coaching del Home y sección Instructor/Equipo del PDP.",
+    funciones: [
+      "Registro y gestión del perfil curricular completo del experto (REVEC)",
+      "Datos generales: nombre, email, RFC, CURP, teléfonos, LinkedIn, ubicación (auto-llenado Google Maps API)",
+      "Expertise, estudios formales, experiencia laboral/académica/consultoría/EC, certificaciones, cursos técnicos, formación docencia",
+      "Publicaciones: libros, indexadas, otras, conferencias. Idiomas",
+      "6 indicadores estratégicos NPS con cuartiles: Relevancia, Dominio, Claridad, Sesión Dinámica, Aplicación Práctica, Recomendabilidad",
+      "NPS histórico y último año (instructor y coordinador): promotores, detractores, pasivos",
+      "Categorización GyT: Fuera estándar / Facilitador Aprendizaje / Senior / Líder",
+      "Restricciones: administrativa (tipo) y por carga académica (fecha liberación)",
+      "API Semblanza U4P (full/lean): perfil + foto + NPS + ranking para Portal y maestriasydiplomados.tec.mx",
+      "API Activos: lista expertos con actividad últimos 2 años / participando último año",
+      "API I-Portafolio: perfil completo (datos, expertise, estudios, experiencia, evaluaciones, indicadores, restricciones, equipo, NPS coordinador)",
+      "Integración mensual Qualtrics (SSIS) + actualización diaria categorización GyT",
+      "Sincronización con CRM Salesforce (IdExperto_PASE / IdExpertoCRM)"
+    ],
+    maestros: ["IdExperto (PK)","IdExpertoCRM (FK Salesforce)","Nombre/Paterno/Materno","Email primario/secundario","Foto (Base64)","Reseña","RFC","CURP","Teléfonos (celular/fijo)","LinkedIn URL","CP/País/Estado/Ciudad","ClasificacionExperto (ranking GyT)","ClasificacionConsultor","NPS Histórico/LastYear","6 Indicadores estratégicos (cuartiles)","Restricciones admin/carga","Evaluaciones por módulo/programa","Equipo coordinado"],
+    brechas: ["Token autenticación en querystring — riesgo seguridad (pendiente Bearer Token)","Sin ETL PASE → Portal MVP1 para perfil completo","Infraestructura legacy: IIS 10 / SQL Server 2012","Relación instructor-curso/SKU en Google Sheets (no en PASE)","API I-Portafolio: máx 10 registros por petición grupal","Sin SSO/federación con IAM To-Be","Validación IP en API — requiere whitelist para Portal Unificado"],
+    release: "R1, R3"
   },
   tecfeedback: {
     name: "Tec.feedback",
@@ -609,10 +664,10 @@ const SYSTEMS = {
     typeLabel: "Nuevo habilitador",
     dot: "purple",
     commercial: false,
-    desc: "Componente de búsqueda inteligente evolucionado a recomendador/perfilador. No sube al API Manager en MVP1. Backends desarrollados por equipo Manuel Terán.",
-    funciones: ["Búsqueda semántica de programas educativos","Perfilamiento y recomendación personalizada (Tec.gpt)","Consulta de contenido del CMS Drupal","Guardado de historial de búsqueda"],
-    maestros: ["Query del usuario","Historial de búsqueda","Perfil de preferencias (inferido)"],
-    brechas: ["Conversación frontend-backend aún no cerrada","No sube al API Manager — sin inventario formal de la API"],
+    desc: "Componente de búsqueda inteligente evolucionado a recomendador/perfilador. V2: embebido inline en el Home del Portal (SB-C-01 a SB-C-03). Flujo secuencial de preguntas para capturar intención del usuario. Backends por equipo Manuel Terán. No sube al API Manager en MVP1.",
+    funciones: ["Búsqueda semántica de programas educativos (HU76/HU77 — motor vectorizado)","Recomendador embebido V2 en Home del Portal (SB-C-01)","Flujo secuencial de preguntas paso a paso (SB-C-01)","Captura de objetivo del usuario (SB-C-03)","Avance con Enter y validación inline (SB-C-02)","Perfilamiento y recomendación personalizada (Tec.gpt)","Filtros facetados por modalidad, duración, área (Buscador HU)","Consulta de contenido del CMS Drupal","Guardado de historial de búsqueda"],
+    maestros: ["Query del usuario","Historial de búsqueda","Perfil de preferencias (inferido)","Objetivo del usuario (captura SB-C-03)","Respuestas del flujo secuencial"],
+    brechas: ["Conversación frontend-backend aún no cerrada","No sube al API Manager — sin inventario formal de la API","Fuente de datos: fichas técnicas del catálogo educativo (HU77 R1)"],
     release: "R2, R4"
   },
   tecgpt: {
@@ -657,10 +712,49 @@ const SYSTEMS = {
     typeLabel: "Habilitador transversal ya existente",
     dot: "blue",
     commercial: true,
-    desc: "Sistema ERP académico-financiero del TEC de Monterrey. Fuente del estado de cuenta académico y financiero del aprendedor. Receptor de transacciones del Gestor de Pagos.",
-    funciones: ["Estado de cuenta académico y financiero del aprendedor","Registro de transacciones del Gestor de Pagos","Emisión de CFDI vía Interfactura","Sincronización con SAP/HANA para contabilidad"],
-    maestros: ["Clave de Concepto (equivalente a ProductId VTEX)","ID Estudiante Banner","Monto Transacción","Folio de Facturación (ID Gestor)"],
-    brechas: ["ID Banner ≠ ID VTEX — requiere tabla de correspondencia en FUD"],
+    desc: "Sistema ERP académico-financiero del TEC de Monterrey. Fuente del estado de cuenta del aprendedor. Proceso de EC es devengado. Configuración de oferta nace en Gestión de Portafolio (Olga Martínez) → se solicita vía ticket a Tech Services → Zulema (contabilidad) registra en Banner: código detalle + código servicio + datos maestros contables. Catálogo consultable por campus en página TZISVSR. Datos administrativos también residen en SEA y Salesforce. Discovery sesión 2 (17-abr-2026) con Armando Contreras, Zulema Pargas.",
+    funciones: [
+      "--- Configuración de Catálogos EC ---",
+      "Código Detalle (TESADEK): 4 dígitos alfanuméricos, tipo cargo/pago, categoría, prioridad compensación, moneda, reembolsable, concepto facturación, derivación contable",
+      "3 códigos detalle para EC por moneda: SEP (pesos), SED (dólares), SEE (euros) — mismas cuentas contables",
+      "Asiento contable devengado: cargo a cuenta cartera + abono a ingresos por devengar → al devengar cancela ingreso por devengar y reconoce ingreso",
+      "Código Servicio: 6 dígitos alfanuméricos, descripción del curso/programa (aparece en estado de cuenta del cliente), categoría (diplomados, seminarios, actividades, investigación)",
+      "Datos maestros por código servicio: SECO (segmento contable), CVC, orden interna, elemento PEP",
+      "Asociación: código servicio → código detalle → campus → clave SAT + unidad de medida + estatus activo/inactivo",
+      "Catálogo TZISVSR: vista consolidada por campus (obligatorio) con código detalle, código servicio, centro costos, segmento, datos maestros, fecha inicio devengamiento, clave SAT, unidad medida, estatus",
+      "--- Proceso de Registro de Cartera ---",
+      "Estado de cuenta del aprendedor (página MATESAREM): registro con código detalle, monto, descripción del curso",
+      "Registro de transacciones del Gestor de Pagos",
+      "Emisión de CFDI vía Interfactura",
+      "Sincronización con SAP/HANA para contabilidad",
+      "--- Origen de Datos Administrativos ---",
+      "Gestión de Portafolio (Olga Martínez): define programas a ofertar → solicita orden interna + código servicio vía ticket Tech Services",
+      "Datos del programa (nombre, campus, orden interna, código servicio) también residen en SEA y Salesforce",
+      "Catálogo completo disponible en Excel en Drive (filtrado por EC, compartido por Zulema)"
+    ],
+    maestros: [
+      "Código Detalle (4 dígitos alfanuméricos): SEP/SED/SEE para EC",
+      "Código Servicio (6 dígitos alfanuméricos): 1 por curso/programa ofertado",
+      "Campus (obligatorio para consulta de catálogo)",
+      "Categoría: diplomados, seminarios, actividades, investigación",
+      "Datos maestros contables: SECO, CVC, orden interna, elemento PEP",
+      "Clave SAT (concepto facturación)",
+      "Unidad de medida",
+      "Moneda (pesos/dólares/euros)",
+      "Fecha inicio devengamiento / periodo devengamiento",
+      "Estatus activo/inactivo del código servicio",
+      "Cuentas contables: cartera, ingresos por devengar, ingreso",
+      "ID Estudiante Banner",
+      "Monto Transacción",
+      "Folio de Facturación (ID Gestor)",
+      "Descripción del curso (visible en estado de cuenta del cliente)"
+    ],
+    brechas: [
+      "ID Banner ≠ ID VTEX — requiere tabla de correspondencia en FUD",
+      "Mapeo código servicio Banner ↔ ProductId/SKU VTEX pendiente de definición",
+      "Catálogo completo en Excel/Drive — sin API expuesta para consumo automático del ecosistema",
+      "Datos administrativos duplicados en SEA y Salesforce — sin fuente única definida para el ecosistema To-Be"
+    ],
     release: "R3, R4"
   },
   banner_utm: {
@@ -698,6 +792,56 @@ const SYSTEMS = {
     maestros: ["Asiento contable","Centro de costo","Monto","Concepto"],
     brechas: [],
     release: "R3, R4"
+  },
+  pase: {
+    name: "PASE (Gestión de Expertos)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal ya existente",
+    dot: "purple",
+    commercial: false,
+    desc: "Portal de Apoyo a la Selección de Expertos. Repositorio central de perfiles de instructores y coordinadores académicos de Educación Continua. Infraestructura: IIS 10 / Azure VM + SQL Server 2012. Autenticación nativa correo+contraseña. Integración mensual Qualtrics (SSIS). Categorización GyT: Fuera del estándar, Facilitador del aprendizaje, Facilitador Senior, Facilitador Líder. Expone 4 APIs REST (Semblanza full/lean, Activos total/participando, I-Portafolio).",
+    funciones: [
+      "Perfil curricular completo del experto (REVEC): datos generales, expertise, estudios, experiencia laboral/académica/consultoría/EC, certificaciones, cursos técnicos, formación docencia, publicaciones, idiomas",
+      "Foto de perfil (Base64) y reseña del experto",
+      "6 indicadores estratégicos NPS con cuartiles: Relevancia, Dominio, Claridad, Sesión Dinámica, Aplicación Práctica, Recomendabilidad",
+      "NPS histórico y último año (instructor y coordinador): promotores, detractores, pasivos",
+      "Clasificación anual GyT como experto y como consultor",
+      "Restricciones: administrativa (tipo) y por carga académica (fecha liberación)",
+      "API Semblanza U4P (full/lean) para Portal y maestriasydiplomados.tec.mx",
+      "API Activos total/participando para listados de expertos",
+      "API I-Portafolio: perfil completo (máx 10 registros por petición grupal)",
+      "Integración mensual Qualtrics vía SSIS para encuestas NPS",
+      "Sincronización con CRM Salesforce (IdExperto_PASE / IdExpertoCRM)",
+      "Google Maps API para auto-llenado ubicación por código postal"
+    ],
+    maestros: ["IdExperto (PK)","IdExpertoCRM (FK Salesforce)","Nombre/Paterno/Materno","Email primario (llave SEA/Qualtrics/CRM)","Email secundario","Foto (Base64)","Reseña","RFC","CURP","Teléfonos (celular/fijo)","LinkedIn URL","CP/País/Estado/Ciudad","ClasificacionExperto","ClasificacionConsultor","NPS Histórico/LastYear","6 Indicadores estratégicos (year1/year2 + cuartiles)","Restricción administrativa/carga","Evaluaciones por módulo/programa/sede/línea negocio","Equipo coordinado","REVEC: expertise, estudios, experiencia, certificaciones, publicaciones, idiomas"],
+    brechas: ["Token autenticación en querystring — riesgo seguridad (pendiente migrar a Bearer Token)","Sin ETL PASE → Portal en MVP1 para perfil completo","Infraestructura legacy: IIS 10 / SQL Server 2012","Relación instructor-curso/SKU en Google Sheets (no en PASE ni VTEX)","API I-Portafolio: máx 10 registros por petición grupal","Sin SSO/federación con IAM To-Be","Validación IP en API — requiere whitelist para Portal Unificado"],
+    release: "R1, R3"
+  },
+  idm: {
+    name: "Identity Manager (IAM To-Be)",
+    type: "transversal",
+    typeLabel: "Habilitador transversal — Núcleo transversal VPAF",
+    dot: "purple",
+    commercial: false,
+    desc: "IAM To-Be v2 (Discovery Identidad Digital 14-abr-2026). Repositorio central con registro único por persona. Taxonomía CN: NVI + consecutivo 4-6 dígitos. Portal Unificado es aprovisionador. NIF es identificador primario (desplaza CURP). Modelo RBAC con granularidad por plataforma. MFA con Advanced Authentication.",
+    funciones: [
+      "Registro identidad digital (User — CN NVI+consecutivo, inmutable)",
+      "Autoregistro VPAF: 6 datos eID (Nombre, Apellidos, Correo, Teléfono, Contraseña) + 3 wish + captcha",
+      "Autenticación local (bcrypt/Argon2) y federada (SAML 2.0 / OIDC — SSO bidireccional)",
+      "Validación email (token SSPR) y teléfono (OTP SMS) — EmailConfirmed / MobileConfirmed",
+      "MFA Adaptativa: OTP, TOTP, Biometría, Push (Advanced Authentication)",
+      "RBAC por plataforma: Role → UserRole → RolePermission → Platform",
+      "Propagación identidad a MDM (PIDEN) — solo facturados en MVP1",
+      "APIs integración: entrada (cambio atributos) y salida (webhooks correo/baja)",
+      "Servicios admin: reset contraseña, cambio correo, desactivación cuenta",
+      "Seguridad: anti brute-force, anti password-spray, bloqueo inactividad",
+      "Trazabilidad: LoginLog (NoSQL) + ChangeLogs para FUD y auditoría",
+      "JWT claims completos del autoregistro (RS256: sub, email, name, roles)"
+    ],
+    maestros: ["CN (NVI+consecutivo) — PK global","Email (varchar 150, 5 reglas Opentext)","NIF — identificador primario persona","CURP (wish, degradado)","Mobile (E.164)","UserName (login_id)","Status (Activo/Inactivo/Suspendido/Pendiente)","Roles: Aprendedor, Instructor, Coordinador, Administrativo, Mentor, Coach","Plataformas: VEC, VED, DED, TLG, Portal, Canvas, Cypher","JWT/SAML NameID = CN","LoginLog (NoSQL)","APIs entrada/salida (slide 8)"],
+    brechas: ["Modelo To-Be pendiente implementación completa","CURP degradado a wish — NIF es primario","Golden Record solo en facturación — sin MDM para usuarios sin factura","Login social preparado pero NO en MVP1","SSO bidireccional SAML↔OIDC pendiente","Tablas correlación local↔CN en habilitadores sin CN"],
+    release: "R1–R5"
   },
   middleware: {
     name: "Middleware 26",
