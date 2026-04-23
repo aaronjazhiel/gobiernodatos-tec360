@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VPAF — Linaje del Dato del Aprendedor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F6F8;
+  --surface:#FFFFFF;
+  --border:#E5E7EB;
+  --border-soft:#EEF0F3;
+  --text:#1F2937;
+  --text-soft:#4B5563;
+  --muted:#6B7280;
+  --light:#9CA3AF;
+
+  --navy:#1E3A5F;
+  --navy-ink:#0F2540;
+  --gold:#D4A84B;
+  --gold-soft:#FBF4DE;
+
+  /* stage colors — progression from cool to warm */
+  --s0:#64748B; --s0-l:#F1F5F9;
+  --s1:#4A6BDB; --s1-l:#E8EDFD;
+  --s2:#0369A1; --s2-l:#E0F2FE;
+  --s3:#7C3AED; --s3-l:#EFE7FD;
+  --s4:#DC2626; --s4-l:#FEE2E2;
+  --s5:#059669; --s5-l:#D1FAE5;
+  --s6:#E0A13A; --s6-l:#FBEFD6;
+  --s7:#D97706; --s7-l:#FDECD4;
+
+  /* attribute categories */
+  --a-new:#10B981;    --a-new-bg:#D1FAE5;
+  --a-inherit:#9CA3AF;--a-inherit-bg:#F3F4F6;
+  --a-update:#F59E0B; --a-update-bg:#FEF3C7;
+  --a-key:#D4A84B;    --a-key-bg:#FBF4DE;
+
+  --sh-sm:0 1px 2px rgba(16,24,40,.05);
+  --sh-md:0 1px 3px rgba(16,24,40,.08), 0 1px 2px rgba(16,24,40,.04);
+  --sh-lg:0 8px 24px rgba(16,24,40,.1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:13px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#9CA3AF}
+
+.topbar{
+  position:sticky; top:0; z-index:200;
+  background:var(--navy-ink);
+  height:52px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+  border-bottom:2px solid var(--gold);
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand-mark{
+  width:30px; height:30px; border-radius:6px;
+  background:var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:11px; color:var(--navy-ink);
+}
+.brand-name{font-weight:600; font-size:13px; color:#fff}
+.brand-sub{font-size:11px; color:rgba(255,255,255,.45); margin-left:4px}
+
+.section-tabs{
+  display:flex; gap:0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  position:sticky; top:52px; z-index:150;
+  overflow-x:auto;
+}
+.section-tab{
+  padding:11px 18px;
+  font-size:13px; font-weight:500;
+  color:var(--muted);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .15s;
+  text-decoration:none;
+  display:inline-flex; align-items:center;
+  white-space:nowrap;
+}
+.section-tab:hover{color:var(--text); background:#FAFBFC}
+.section-tab.active{
+  color:var(--navy-ink);
+  border-bottom-color:var(--gold);
+  font-weight:600;
+}
+.tab-count{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:18px; height:18px;
+  border-radius:9px;
+  font-size:10px; font-weight:600;
+  margin-left:6px; padding:0 5px;
+  background:var(--bg); color:var(--muted);
+}
+.section-tab.active .tab-count{background:var(--gold); color:var(--navy-ink)}
+
+.hero{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:20px 28px;
+  display:flex; align-items:center; justify-content:space-between; gap:22px;
+}
+.hero-text h1{
+  font-size:20px; font-weight:700; color:var(--navy-ink);
+  letter-spacing:-.3px; margin-bottom:4px;
+}
+.hero-text p{font-size:13px; color:var(--muted); max-width:720px; line-height:1.55}
+.hero-stats{display:flex; gap:12px}
+.hero-stat{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 14px;
+  text-align:center;
+  min-width:80px;
+}
+.hero-stat b{display:block; font-size:18px; font-weight:700; color:var(--navy-ink); line-height:1.1}
+.hero-stat span{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px}
+
+.controls{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 28px;
+  display:flex; align-items:center; gap:20px;
+  flex-wrap:wrap;
+}
+.control-label{
+  font-size:11px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.6px;
+  color:var(--muted);
+  margin-right:6px;
+}
+.legend-inline{display:flex; gap:14px; flex-wrap:wrap}
+.legend-item{
+  display:flex; align-items:center; gap:6px;
+  font-size:11.5px; color:var(--text-soft);
+}
+.legend-dot{
+  width:10px; height:10px; border-radius:3px;
+  flex-shrink:0;
+}
+
+/* ---- Main timeline ---- */
+.timeline-wrap{
+  padding:28px;
+  overflow-x:auto;
+  background:
+    linear-gradient(#FBFBFC, transparent 120px),
+    var(--bg);
+}
+.timeline{
+  display:flex;
+  align-items:flex-start;
+  gap:0;
+  min-width:min-content;
+  padding-bottom:30px;
+}
+
+.stage{
+  flex:0 0 230px;
+  display:flex; flex-direction:column; align-items:center;
+  position:relative;
+}
+.stage-header{
+  text-align:center;
+  width:100%;
+  padding:0 8px 10px;
+  min-height:72px;
+}
+.stage-n{
+  display:inline-block;
+  font-size:9.5px; font-weight:700;
+  color:var(--light);
+  letter-spacing:.8px; text-transform:uppercase;
+  margin-bottom:4px;
+}
+.stage-name{
+  font-size:13.5px; font-weight:700;
+  color:var(--navy-ink);
+  letter-spacing:-.2px;
+  line-height:1.25;
+}
+.stage-sub{
+  font-size:11px; color:var(--muted);
+  margin-top:2px; line-height:1.3;
+}
+
+.rail{
+  position:relative;
+  width:100%;
+  height:44px;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:14px;
+}
+.rail::before{
+  content:"";
+  position:absolute;
+  top:50%; left:0; right:0;
+  height:3px;
+  background:var(--border);
+  border-radius:2px;
+  transform:translateY(-50%);
+}
+.stage:first-child .rail::before{left:50%}
+.stage:last-child  .rail::before{right:50%}
+
+.rail-node{
+  position:relative; z-index:2;
+  width:38px; height:38px;
+  border-radius:50%;
+  background:var(--sc);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px;
+  box-shadow:0 0 0 4px #fff, 0 2px 8px color-mix(in srgb, var(--sc) 30%, transparent);
+  transition:transform .15s;
+  cursor:pointer;
+}
+.stage.active .rail-node{
+  transform:scale(1.15);
+  box-shadow:0 0 0 5px #fff, 0 4px 14px color-mix(in srgb, var(--sc) 45%, transparent);
+}
+.stage:hover .rail-node{transform:scale(1.1)}
+
+.expediente{
+  width:100%; max-width:214px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  transition:all .18s;
+  cursor:pointer;
+}
+.expediente:hover{
+  border-color:var(--sc);
+  box-shadow:0 4px 14px color-mix(in srgb, var(--sc) 18%, transparent);
+  transform:translateY(-2px);
+}
+.stage.active .expediente{
+  border-color:var(--sc);
+  border-width:2px;
+  box-shadow:var(--sh-lg);
+}
+.exp-top{
+  background:var(--sc-l);
+  padding:12px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  border-bottom:1px solid var(--border-soft);
+}
+.exp-total{
+  font-size:26px; font-weight:800;
+  color:var(--sc);
+  line-height:.95;
+}
+.exp-delta{
+  font-size:10.5px; font-weight:700;
+  color:var(--a-new);
+  display:inline-block;
+  margin-top:3px;
+}
+.exp-total-lbl{
+  font-size:9px; font-weight:700;
+  color:var(--sc);
+  text-transform:uppercase; letter-spacing:.5px;
+  opacity:.7;
+  text-align:right; line-height:1.2;
+  max-width:80px;
+}
+
+.exp-progress{
+  height:4px;
+  background:#F3F4F6;
+  position:relative;
+}
+.exp-progress-fill{
+  height:100%;
+  background:var(--sc);
+}
+
+.exp-systems{
+  padding:10px 12px;
+  display:flex; flex-wrap:wrap; gap:4px;
+  min-height:40px;
+  background:#FAFBFC;
+  border-bottom:1px solid var(--border-soft);
+}
+.sys-pill{
+  padding:2px 7px;
+  border-radius:4px;
+  font-size:10px; font-weight:600;
+  background:#fff;
+  border:1px solid var(--border);
+  color:var(--text-soft);
+  display:inline-flex; align-items:center; gap:3px;
+}
+.sys-pill .sys-ico{font-size:9px}
+
+.exp-preview{
+  padding:9px 12px 10px;
+}
+.exp-preview-label{
+  font-size:9px; font-weight:700;
+  color:var(--a-new);
+  text-transform:uppercase; letter-spacing:.4px;
+  margin-bottom:5px;
+}
+.exp-new-attrs{
+  display:flex; flex-direction:column; gap:3px;
+}
+.exp-new-attr{
+  font-size:10.5px;
+  color:var(--text-soft);
+  display:flex; align-items:center; gap:5px;
+  line-height:1.3;
+  font-family:'SF Mono',Consolas,monospace;
+}
+.exp-new-attr::before{
+  content:"+";
+  color:var(--a-new);
+  font-weight:700;
+  font-size:12px;
+  flex-shrink:0;
+  font-family:'Inter',sans-serif;
+}
+.exp-new-attr.key::before{content:"★"; color:var(--a-key); font-size:10px}
+
+.exp-cta{
+  padding:7px 12px;
+  background:#FAFBFC;
+  border-top:1px solid var(--border-soft);
+  font-size:10.5px; color:var(--muted);
+  text-align:center;
+  font-weight:500;
+}
+.stage.active .exp-cta{color:var(--sc); font-weight:600}
+
+.flow-connector{
+  flex:0 0 38px;
+  height:340px;
+  position:relative;
+  margin-top:62px;
+}
+.flow-arrow{
+  position:absolute;
+  top:45%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:var(--text-soft);
+  font-size:22px;
+  font-weight:600;
+}
+.flow-type{
+  position:absolute;
+  top:30%;
+  left:50%;
+  transform:translate(-50%,-100%);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:3px 7px;
+  font-size:9.5px; font-weight:600;
+  color:var(--text-soft);
+  white-space:nowrap;
+  box-shadow:var(--sh-sm);
+}
+
+/* Detail panel */
+.detail-panel{
+  position:fixed;
+  bottom:0; left:0; right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  box-shadow:0 -8px 32px rgba(0,0,0,.12);
+  z-index:180;
+  max-height:74vh;
+  display:flex; flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.detail-panel.open{transform:translateY(0)}
+.detail-handle{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 24px;
+  border-bottom:1px solid var(--border-soft);
+  background:var(--dc-l);
+}
+.detail-title-wrap{display:flex; align-items:center; gap:12px}
+.detail-ico-big{
+  width:46px; height:46px;
+  border-radius:12px;
+  background:var(--dc);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+  box-shadow:var(--sh-sm);
+}
+.detail-title-wrap h2{
+  font-size:17px; font-weight:700;
+  color:var(--navy-ink);
+  letter-spacing:-.2px;
+}
+.detail-title-wrap .detail-sub{
+  font-size:12px; color:var(--muted);
+}
+.detail-close{
+  width:32px; height:32px;
+  border-radius:8px;
+  color:var(--muted);
+  font-size:18px;
+  transition:background .12s;
+}
+.detail-close:hover{background:#fff}
+
+.detail-body{
+  overflow-y:auto;
+  padding:20px 24px 28px;
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr;
+  gap:24px;
+}
+.detail-section h3{
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.6px;
+  color:var(--light);
+  margin-bottom:10px;
+}
+
+.attr-table{
+  display:flex; flex-direction:column;
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  overflow:hidden;
+}
+.attr-row{
+  display:grid;
+  grid-template-columns:1.3fr 1fr auto;
+  gap:10px;
+  padding:9px 12px;
+  border-bottom:1px solid var(--border-soft);
+  font-size:12px;
+  align-items:center;
+}
+.attr-row:last-child{border-bottom:none}
+.attr-row.hdr{
+  background:#FAFBFC;
+  font-weight:700;
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase; letter-spacing:.5px;
+}
+.attr-name code{
+  font-family:'SF Mono',Consolas,monospace;
+  font-size:11px;
+  background:#F3F4F6;
+  padding:2px 6px;
+  border-radius:3px;
+  color:var(--text);
+}
+.attr-origen{font-size:11px; color:var(--text-soft)}
+.attr-tag{
+  display:inline-block;
+  padding:2px 7px;
+  border-radius:4px;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+.attr-tag.new{background:var(--a-new-bg); color:var(--a-new)}
+.attr-tag.upd{background:var(--a-update-bg); color:var(--a-update)}
+.attr-tag.inh{background:var(--a-inherit-bg); color:var(--a-inherit)}
+.attr-tag.key{background:var(--a-key-bg); color:var(--a-key)}
+
+.attr-desc{
+  grid-column:1 / -1;
+  font-size:10.5px; color:var(--muted);
+  padding-left:2px;
+  margin-top:-4px;
+  line-height:1.4;
+}
+
+.transform-flow{display:flex; flex-direction:column; gap:6px}
+.transform-node{
+  padding:10px 12px;
+  background:var(--bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+}
+.transform-node-title{
+  font-weight:600; color:var(--navy-ink);
+  margin-bottom:3px;
+  display:flex; align-items:center; gap:6px;
+  font-size:12px;
+}
+.transform-node-body{
+  color:var(--text-soft);
+  font-size:11.5px;
+  line-height:1.5;
+}
+.transform-arrow{
+  color:var(--muted);
+  text-align:center;
+  font-size:12px;
+  line-height:1;
+}
+
+.notes-list{display:flex; flex-direction:column; gap:8px; list-style:none; padding:0}
+.notes-list li{
+  font-size:12px;
+  color:var(--text-soft);
+  line-height:1.5;
+  padding:9px 12px;
+  background:var(--bg);
+  border:1px solid var(--border-soft);
+  border-left:3px solid var(--gold);
+  border-radius:4px;
+}
+.notes-list li.critical{
+  border-left-color:#DC2626;
+  background:#FEF2F2;
+}
+.notes-list li.decision{
+  border-left-color:#7C3AED;
+  background:#F5F3FF;
+}
+
+@media(max-width:900px){
+  .hero{flex-direction:column; align-items:flex-start}
+  .detail-body{grid-template-columns:1fr}
+  .controls{gap:10px}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-mark">TEC</div>
+    <span class="brand-name">VPAF · Portal Arquitectura</span>
+    <span class="brand-sub">MVP1 · Oct 2026</span>
+  </div>
+</nav>
+
+<div class="section-tabs">
+  <a class="section-tab" href="index.html">🏗️ Arquitectura vs Habilitadores</a>
+  <a class="section-tab" href="brechas.html">⚠ Análisis de Brechas <span class="tab-count">36</span></a>
+  <a class="section-tab" href="Arquitectura.html">🧩 Arquitectura</a>
+  <a class="section-tab" href="JourneAprendedor.html">📍 Journey del Aprendedor</a>
+  <a class="section-tab active" href="linaje.html">🔗 Linaje de Dato</a>
+</div>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>Linaje del Dato del Aprendedor · Timeline de Maduración</h1>
+    <p>Cómo nace, crece y se transforma el expediente del aprendedor a lo largo de su ciclo de vida — desde el primer impacto anónimo hasta la emisión de su credencial. Cada tarjeta muestra con cuántos atributos llega el aprendedor, qué datos nacen en esa etapa y cómo se conecta con la siguiente. Click en cualquier tarjeta para ver el detalle.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><b id="s-etapas">8</b><span>Etapas</span></div>
+    <div class="hero-stat"><b id="s-attrs">—</b><span>Atributos finales</span></div>
+    <div class="hero-stat"><b id="s-systems">14</b><span>Plataformas</span></div>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="control-label">Leyenda</span>
+  <div class="legend-inline">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--a-new)"></span>Atributo nuevo</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--a-update)"></span>Se actualiza</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--a-inherit)"></span>Heredado</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--a-key)"></span>★ Llave / crítico</span>
+  </div>
+</div>
+
+<div class="timeline-wrap">
+  <div class="timeline" id="timeline"></div>
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-handle">
+    <div class="detail-title-wrap">
+      <div class="detail-ico-big" id="detail-ico"></div>
+      <div>
+        <h2 id="detail-title">—</h2>
+        <div class="detail-sub" id="detail-sub">—</div>
+      </div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<script>
+/* =====================================================================
+ * DATA — Derived from VPAF Blueprint (VTEX/WALLIA Apr 2026) + project memory
+ * ===================================================================== */
+const STAGES = [
+  {
+    id:"s0", n:"Etapa 0", name:"Impacto anónimo",
+    sub:"Awareness / Detonante",
+    ico:"📡",
+    systems:[
+      {name:"HubSpot",   ico:"🧲"},
+      {name:"Clarity",   ico:"📊"},
+      {name:"Portal público", ico:"🌐"}
+    ],
+    new_attrs:[
+      { name:"session_id",     desc:"Identificador de sesión anónima",     origen:"Clarity / Portal", tag:"new" },
+      { name:"utm_source",     desc:"Canal de origen (campaña digital)",   origen:"HubSpot",          tag:"new" },
+      { name:"utm_medium",     desc:"Tipo de canal: cpc, email, social…",  origen:"HubSpot",          tag:"new" },
+      { name:"utm_campaign",   desc:"Campaña específica",                  origen:"HubSpot",          tag:"new" },
+      { name:"page_views",     desc:"Páginas visitadas en la sesión",      origen:"Clarity",          tag:"new" },
+      { name:"click_events",   desc:"Eventos de interacción",              origen:"HubSpot / Clarity",tag:"new" }
+    ],
+    transform:[
+      { title:"Origen", ico:"📡", body:"El usuario es impactado por anuncios, contenido o comunicaciones en canales digitales. Todavía es completamente anónimo." },
+      { title:"Captura", ico:"📥", body:"Clarity registra clickstream; HubSpot atribuye la campaña vía UTM parameters." },
+      { title:"Destino", ico:"🗄", body:"Los eventos fluyen por event streaming hacia el warehouse (FUD) para análisis posterior de conversión." }
+    ],
+    notes:[
+      { type:"info",  text:"No existe aún ningún identificador del aprendedor. Solo huella digital anónima." },
+      { type:"info",  text:"Blueprint §1.1 — Capa de experiencia Portal Unificado (Next.js + Drupal) actúa como punto de entrada." }
+    ]
+  },
+
+  {
+    id:"s1", n:"Etapa 1", name:"Interés / Lead",
+    sub:"Captura de formulario",
+    ico:"📝",
+    systems:[
+      {name:"Portal",  ico:"🌐"},
+      {name:"HubSpot", ico:"🧲"},
+      {name:"Salesforce", ico:"☁"}
+    ],
+    new_attrs:[
+      { name:"email",             desc:"Correo electrónico — campo llave para Salesforce (supuesto #10)",     origen:"Portal (form)", tag:"key" },
+      { name:"nombre",            desc:"Nombre del prospecto",                                                origen:"Portal (form)", tag:"new" },
+      { name:"telefono",          desc:"Número de contacto con código de país",                               origen:"Portal (form)", tag:"new" },
+      { name:"programa_interes",  desc:"Curso/programa solicitado — contra catálogo SEA",                     origen:"Portal (form)", tag:"new" },
+      { name:"consent_tc",        desc:"Aceptación de T&C y política de datos",                               origen:"Portal (form)", tag:"new" },
+      { name:"lead_id",           desc:"ID único del lead generado por HubSpot",                              origen:"HubSpot",       tag:"new" },
+      { name:"lead_source",       desc:"Canal que originó el lead",                                           origen:"HubSpot",       tag:"new" }
+    ],
+    transform:[
+      { title:"Portal (form submission)", ico:"🌐", body:"El usuario llena un formulario y acepta T&C. Se validan formatos (email, teléfono con código de país)." },
+      { title:"HubSpot", ico:"🧲", body:"Genera el lead_id, atribuye UTM heredado y clasifica. Precede a Salesforce (C-18 del proyecto)." },
+      { title:"Salesforce CRM", ico:"☁", body:"Recibe el lead sincronizado vía API. El email es la llave única (supuesto #10 del blueprint)." }
+    ],
+    notes:[
+      { type:"decision", text:"Supuesto #10 del blueprint: el email es el campo llave para Salesforce." },
+      { type:"info",     text:"Programa_interes aún no se valida contra catálogo SEA en esta etapa." }
+    ]
+  },
+
+  {
+    id:"s2", n:"Etapa 2", name:"Identidad digital",
+    sub:"IdP TEC / Auto-registro",
+    ico:"🔐",
+    systems:[
+      {name:"IdP TEC", ico:"🔐"},
+      {name:"Portal",  ico:"🌐"},
+      {name:"BFF",     ico:"⚙"}
+    ],
+    new_attrs:[
+      { name:"user_id",          desc:"Identificador único de identidad digital",                              origen:"IdP TEC",        tag:"key" },
+      { name:"auth_method",      desc:"SSO ID Tec (SAML 2.0) o auto-registro (email + password)",              origen:"IdP TEC",        tag:"new" },
+      { name:"is_tec_community", desc:"Flag comunidad Tec (alumnos, EXATEC, colaboradores) vs externo",         origen:"IdP TEC",        tag:"new" },
+      { name:"session_token",    desc:"OAuth 2.0 token de sesión para consumir VTEX y otros servicios",        origen:"IdP TEC → BFF",  tag:"new" },
+      { name:"user_segment",     desc:"Segmentación inicial: comunidad Tec vs aprendedor externo",             origen:"BFF",            tag:"new" }
+    ],
+    transform:[
+      { title:"IdP TEC (SAML 2.0)", ico:"🔐", body:"Autenticación institucional por SSO (ID Tec) o auto-registro. Modelo de identidad simplificada: permite pseudónimo para reducir fricción (blueprint §6.1)." },
+      { title:"Middleware de intermediación", ico:"⚙", body:"Puente entre SAML 2.0 (frontend) y OAuth 2.0 (VTEX). Reusa infraestructura de MarketTec." },
+      { title:"BFF (.NET)", ico:"⚙", body:"Centraliza gestión de sesión. Aplica segmentación inicial por método de autenticación." }
+    ],
+    notes:[
+      { type:"info",     text:"Blueprint §6.1 — Identidad simplificada: puede operar como aprendedor sin validación institucional completa." },
+      { type:"decision", text:"Blueprint §6.3 — SSO institucional SAML 2.0 ↔ VTEX OAuth 2.0 vía middleware (reuso de MarketTec)." },
+      { type:"critical", text:"No existe aún identificador único transversal del aprendedor en todo el ecosistema (DP abierto del proyecto)." }
+    ]
+  },
+
+  {
+    id:"s3", n:"Etapa 3", name:"Compra / Carrito",
+    sub:"VTEX Checkout (PCI DSS)",
+    ico:"🛒",
+    systems:[
+      {name:"Portal e-com", ico:"🛍"},
+      {name:"BFF (.NET)",   ico:"⚙"},
+      {name:"VTEX",         ico:"🛒"},
+      {name:"Gestor Pagos", ico:"💳"}
+    ],
+    new_attrs:[
+      { name:"orderForm_id",      desc:"ID del carrito VTEX",                                                    origen:"VTEX Checkout",  tag:"new" },
+      { name:"cart_items[]",      desc:"Array de SKUs seleccionados",                                            origen:"VTEX",           tag:"new" },
+      { name:"sku",               desc:"Identificador VTEX del producto (curso)",                                origen:"VTEX Catalog",   tag:"new" },
+      { name:"price",             desc:"Precio base heredado desde SEA",                                         origen:"VTEX (← SEA)",   tag:"new" },
+      { name:"shipping_dummy",    desc:"Dirección dummy (productos digitales, blueprint §8.2)",                  origen:"BFF",            tag:"new" },
+      { name:"order_id_vtex",     desc:"Número de orden VTEX — visible al cliente",                              origen:"VTEX OMS",       tag:"key" },
+      { name:"payment_id",        desc:"Identificador de transacción de pago",                                   origen:"Gestor Pagos",   tag:"new" },
+      { name:"payment_status",    desc:"Estatus: pending / approved / declined",                                 origen:"Gestor Pagos",   tag:"new" },
+      { name:"promo_code",        desc:"Código promocional aplicado (motor nativo VTEX)",                        origen:"VTEX Promotions",tag:"new" }
+    ],
+    transform:[
+      { title:"Portal e-commerce → BFF", ico:"🛍", body:"Usuario agrega productos al carrito. El Frontend NUNCA llama a VTEX directo (blueprint §7.2)." },
+      { title:"BFF → Azure API Mgmt → VTEX", ico:"⚙", body:"BFF orquesta llamadas al Catalog API, Checkout API y OrderForm de VTEX. Maneja sesión y cache." },
+      { title:"VTEX Checkout (PCI)", ico:"🛒", body:"El Checkout certificado PCI DSS aísla manejo de datos de tarjeta. Frontend queda fuera del scope PCI." },
+      { title:"VTEX OMS", ico:"📋", body:"Crea la orden y la pasa por el ciclo de vida (created → payment approved → invoiced)." }
+    ],
+    notes:[
+      { type:"info",     text:"Blueprint §8.1 — VTEX Checkout mantiene datos sensibles dentro del perímetro PCI DSS." },
+      { type:"decision", text:"Blueprint §9.2 — El order_id_vtex es el ID visible al cliente; tabla de equivalencia con número interno TEC gestionada en middleware/BFF." },
+      { type:"critical", text:"Concurrencia de cupos (blueprint §10) — venta asistida (Salesforce) + e-commerce (VTEX) comparten el mismo pool en SEA. Riesgo de sobreventa." }
+    ]
+  },
+
+  {
+    id:"s4", n:"Etapa 4", name:"Facturación (opcional)",
+    sub:"Perfil progresivo → MDM",
+    ico:"🧾",
+    systems:[
+      {name:"Portal",       ico:"🌐"},
+      {name:"Facturador TEC", ico:"🧾"},
+      {name:"MDM",          ico:"💎"},
+      {name:"HubSpot",      ico:"🧲"}
+    ],
+    new_attrs:[
+      { name:"rfc",               desc:"RFC del usuario (SAT válido)",                                           origen:"Portal (perfil progresivo)", tag:"new" },
+      { name:"regimen_fiscal",    desc:"Régimen fiscal SAT",                                                     origen:"Portal",         tag:"new" },
+      { name:"uso_cfdi",          desc:"Uso del CFDI según catálogo SAT",                                        origen:"Portal",         tag:"new" },
+      { name:"cfdi_id",           desc:"UUID del CFDI 4.0 emitido",                                              origen:"Facturador TEC", tag:"new" },
+      { name:"cfdi_xml_url",      desc:"URL del XML del CFDI",                                                   origen:"Facturador TEC", tag:"new" },
+      { name:"golden_record_id",  desc:"★ Identificador único consolidado en MDM — SOLO SE CREA AQUÍ",           origen:"MDM",            tag:"key" }
+    ],
+    transform:[
+      { title:"Portal (módulo facturación)", ico:"🌐", body:"Usuario ingresa datos fiscales — perfil progresivo: NO es obligatorio en la compra (blueprint §12)." },
+      { title:"HubSpot → correo día siguiente", ico:"✉", body:"Correo proactivo con número de pedido y liga para facturar, al día siguiente de la compra." },
+      { title:"Facturador institucional TEC", ico:"🧾", body:"Genera CFDI 4.0 a partir de datos fiscales y orden VTEX. Integración técnica pendiente de definir." },
+      { title:"MDM — Golden Record", ico:"💎", body:"★ ÚNICO punto donde se crea el Golden Record. En MVP1 el MDM está limitado a usuarios con proceso de facturación." }
+    ],
+    notes:[
+      { type:"decision", text:"Blueprint §12 — Datos fiscales son perfil progresivo (no obligatorios en compra)." },
+      { type:"critical", text:"★ MDM condicionado: sólo usuarios facturados reciben Golden Record. Aprendedores que pagan sin factura NO tienen identificador consolidado." },
+      { type:"info",     text:"Item abierto #10 del blueprint — integración VTEX ↔ facturador institucional aún pendiente." }
+    ]
+  },
+
+  {
+    id:"s5", n:"Etapa 5", name:"Inscripción académica",
+    sub:"Order Hook → Middleware → SEA",
+    ico:"🎓",
+    systems:[
+      {name:"VTEX OMS",    ico:"📋"},
+      {name:"Bus IBM",     ico:"☁"},
+      {name:"Azure APIM",  ico:"⚙"},
+      {name:"SEA",         ico:"🎓"}
+    ],
+    new_attrs:[
+      { name:"matricula_sea",        desc:"Identificador académico del aprendedor en SEA",                      origen:"SEA",        tag:"key" },
+      { name:"cupo_reservado",       desc:"Cupo asignado del programa (reserva transaccional)",                 origen:"SEA",        tag:"new" },
+      { name:"course_sea_id",        desc:"Identificador del curso en SEA (fuente de verdad)",                  origen:"SEA",        tag:"new" },
+      { name:"order_id_interno_tec", desc:"Número de pedido interno del TEC (tabla equivalencia)",              origen:"Middleware", tag:"key" },
+      { name:"inscripcion_status",   desc:"Estatus académico: inscrito / pendiente_cupo / cancelado",           origen:"SEA",        tag:"new" },
+      { name:"apertura_programa",    desc:"Flag si el programa alcanzó cupo mínimo y se aperturó",              origen:"SEA",        tag:"new" }
+    ],
+    transform:[
+      { title:"VTEX OMS (Order Hook)", ico:"📋", body:"Al llegar la orden a 'payment approved', VTEX dispara un Order Hook (blueprint §9.1)." },
+      { title:"Middleware / Bus IBM", ico:"☁", body:"Consume el evento, genera order_id_interno_tec y arma tabla de equivalencia (blueprint §9.2)." },
+      { title:"Azure API Mgmt → SEA", ico:"⚙", body:"Envía inscripción a SEA; SEA valida cupo mínimo y actualiza inventario contra Golden Record de cupos." },
+      { title:"Validación tiempo real (doble check)", ico:"🔁", body:"Blueprint §10.1 — Antes de confirmar, se consulta SEA en real time para validar disponibilidad efectiva." }
+    ],
+    notes:[
+      { type:"decision", text:"Blueprint §9.1 — La notificación a SEA se dispara SOLO con pago confirmado, no antes." },
+      { type:"info",     text:"Blueprint §10.1 — Modelo híbrido de inventario: reserva transaccional en VTEX + validación real time contra SEA + umbral de seguridad (buffer)." },
+      { type:"critical", text:"Si el programa no alcanza cupo mínimo, SEA cancela/reprograma → flujo de reembolso pendiente (item abierto #13)." }
+    ]
+  },
+
+  {
+    id:"s6", n:"Etapa 6", name:"Vivencia / Aprendizaje",
+    sub:"Enrolamiento LXP + progreso",
+    ico:"📚",
+    systems:[
+      {name:"Middleware",  ico:"⚙"},
+      {name:"Cypher LXP",  ico:"📚"},
+      {name:"TLG LMS",     ico:"📖"},
+      {name:"SEA",         ico:"🎓"}
+    ],
+    new_attrs:[
+      { name:"lxp_user_id",       desc:"Identificador del aprendedor en Cypher Learning",                        origen:"Cypher LXP", tag:"new" },
+      { name:"enrollment_id",     desc:"ID del enrolamiento en la oferta adquirida",                             origen:"Cypher LXP", tag:"new" },
+      { name:"credenciales_lxp",  desc:"Credenciales enviadas 72h antes del inicio (blueprint §9.1)",            origen:"SEA / LXP",  tag:"new" },
+      { name:"progreso_curso",    desc:"% de avance por unidad",                                                 origen:"Cypher LXP", tag:"new" },
+      { name:"calificaciones[]",  desc:"Calificaciones por actividad (escala institucional)",                    origen:"Cypher LXP", tag:"new" },
+      { name:"asistencia",        desc:"% de asistencia a sesiones",                                             origen:"Cypher LXP", tag:"new" },
+      { name:"evidencias[]",      desc:"Entregables, evaluaciones realizadas",                                   origen:"Cypher LXP", tag:"new" }
+    ],
+    transform:[
+      { title:"VTEX event → Middleware → Cypher", ico:"🔁", body:"Enrolamiento automático post-compra. ⚠ Evento disparador y estructura de datos aún en definición (blueprint §9.4)." },
+      { title:"Cypher LXP provisionamiento", ico:"📚", body:"Se crean accesos del aprendedor. El acceso requiere registro posterior a la compra (blueprint §6.3)." },
+      { title:"Aprendizaje (operación)", ico:"🎯", body:"El aprendedor consume contenido, entrega evidencias y completa evaluaciones." },
+      { title:"Batch nocturna Cypher → SEA", ico:"🌙", body:"Sincronización de calificaciones, progreso y asistencia a SEA." }
+    ],
+    notes:[
+      { type:"critical", text:"Blueprint §9.4 — Proceso de enrolamiento al LXP pendiente: falta definir evento disparador, estructura de datos y mecanismo de integración." },
+      { type:"info",     text:"Blueprint §11 — Credenciales de acceso se envían 72 horas antes del inicio del curso." },
+      { type:"info",     text:"Cypher LXP y TLG LMS coexisten (blueprint §3) — frontera funcional aún no definida." }
+    ]
+  },
+
+  {
+    id:"s7", n:"Etapa 7", name:"Reconocimiento",
+    sub:"Acreditación y credencial digital",
+    ico:"🎖",
+    systems:[
+      {name:"SEA",        ico:"🎓"},
+      {name:"Accredible", ico:"🎖"},
+      {name:"Portal",     ico:"🌐"},
+      {name:"FUD",        ico:"🗄"}
+    ],
+    new_attrs:[
+      { name:"cumplimiento_ok",   desc:"Flag: cumple criterios académicos para acreditar",                       origen:"SEA",        tag:"new" },
+      { name:"credential_id",     desc:"Identificador único de credencial Accredible",                            origen:"Accredible", tag:"key" },
+      { name:"fecha_emision",     desc:"Fecha/hora de emisión (ISO 8601)",                                        origen:"Accredible", tag:"new" },
+      { name:"insignia_url",      desc:"URL pública y verificable de la insignia",                                origen:"Accredible", tag:"new" },
+      { name:"historial_academico",desc:"Consolidación final del expediente en SEA",                              origen:"SEA",        tag:"new" },
+      { name:"nps_final",         desc:"Score de satisfacción post-experiencia",                                  origen:"Qualtrics",  tag:"new" }
+    ],
+    transform:[
+      { title:"SEA (validación cumplimiento)", ico:"🎓", body:"SEA revisa si el usuario cumple criterios académicos (calificaciones, asistencia, evaluaciones)." },
+      { title:"SEA → Accredible (API)", ico:"🎖", body:"Solicita emisión de credencial digital con los datos del aprendedor y el programa." },
+      { title:"Accredible → Portal", ico:"🌐", body:"Expone la credencial en el portal del aprendedor. Credential_id verificable públicamente." },
+      { title:"Qualtrics (feedback)", ico:"📝", body:"Envía encuesta NPS post-experiencia. Feedback se consolida en FUD." },
+      { title:"FUD (warehouse)", ico:"🗄", body:"Todos los datos históricos del aprendedor quedan consolidados en el warehouse para analítica y BI." }
+    ],
+    notes:[
+      { type:"info",     text:"Integración con Accredible en redefinición — plantillas por escuela." },
+      { type:"decision", text:"El credential_id es público y verificable — no puede usarse como identificador interno." },
+      { type:"info",     text:"Blueprint §1.1 — FUD consolida la capa analítica del ecosistema para explotación." }
+    ]
+  }
+];
+
+/* cumulative attribute counts */
+let cumul = 0;
+STAGES.forEach(s=>{
+  s.delta = s.new_attrs.length;
+  cumul += s.delta;
+  s.total = cumul;
+});
+const TOTAL_FINAL = cumul;
+
+function stageColors(idx){
+  return { c:`var(--s${idx})`, l:`var(--s${idx}-l)` };
+}
+
+const CONNECTORS = [
+  { from:0, to:1, type:"Form submit" },
+  { from:1, to:2, type:"OIDC / SAML" },
+  { from:2, to:3, type:"API (BFF)" },
+  { from:3, to:4, type:"CFDI API" },
+  { from:4, to:5, type:"Order Hook" },
+  { from:5, to:6, type:"Event / API" },
+  { from:6, to:7, type:"Batch" }
+];
+
+/* render timeline */
+function renderTimeline(){
+  const wrap = document.getElementById("timeline");
+  let html = "";
+
+  STAGES.forEach((s,idx)=>{
+    const c = stageColors(idx);
+    const preview = s.new_attrs.slice(0,3);
+    const moreCount = Math.max(0, s.new_attrs.length - 3);
+
+    html += `
+      <div class="stage" data-idx="${idx}" style="--sc:${c.c};--sc-l:${c.l}">
+        <div class="stage-header">
+          <div class="stage-n">${s.n}</div>
+          <div class="stage-name">${s.name}</div>
+          <div class="stage-sub">${s.sub}</div>
+        </div>
+        <div class="rail">
+          <div class="rail-node" onclick="selectStage(${idx})">${s.ico}</div>
+        </div>
+        <div class="expediente" onclick="selectStage(${idx})">
+          <div class="exp-top">
+            <div>
+              <div class="exp-total">${s.total}</div>
+              <div class="exp-delta">+${s.delta} nuevos</div>
+            </div>
+            <div class="exp-total-lbl">atributos acumulados</div>
+          </div>
+          <div class="exp-progress">
+            <div class="exp-progress-fill" style="width:${(s.total/TOTAL_FINAL)*100}%"></div>
+          </div>
+          <div class="exp-systems">
+            ${s.systems.map(sys=>`<span class="sys-pill"><span class="sys-ico">${sys.ico}</span>${sys.name}</span>`).join("")}
+          </div>
+          <div class="exp-preview">
+            <div class="exp-preview-label">Nacen aquí</div>
+            <div class="exp-new-attrs">
+              ${preview.map(a=>`<div class="exp-new-attr ${a.tag==='key'?'key':''}">${a.name}</div>`).join("")}
+              ${moreCount>0?`<div class="exp-new-attr" style="color:var(--muted)">+ ${moreCount} más</div>`:""}
+            </div>
+          </div>
+          <div class="exp-cta">Ver detalle →</div>
+        </div>
+      </div>
+    `;
+
+    if(idx < STAGES.length-1){
+      const conn = CONNECTORS.find(cn=>cn.from===idx);
+      html += `
+        <div class="flow-connector">
+          ${conn ? `<div class="flow-type">${conn.type}</div>` : ""}
+          <div class="flow-arrow">→</div>
+        </div>
+      `;
+    }
+  });
+
+  wrap.innerHTML = html;
+  document.getElementById("s-attrs").textContent = TOTAL_FINAL;
+  document.getElementById("s-etapas").textContent = STAGES.length;
+}
+
+/* detail panel */
+function selectStage(idx){
+  const s = STAGES[idx];
+  const c = stageColors(idx);
+
+  document.querySelectorAll(".stage").forEach((el,i)=>{
+    el.classList.toggle("active", i===idx);
+  });
+
+  const panel = document.getElementById("detail-panel");
+  panel.style.setProperty("--dc", c.c);
+  panel.style.setProperty("--dc-l", c.l);
+
+  document.getElementById("detail-ico").textContent = s.ico;
+  document.getElementById("detail-title").textContent = `${s.n} · ${s.name}`;
+  document.getElementById("detail-sub").textContent = s.sub;
+
+  const attrRows = s.new_attrs.map(a=>`
+    <div class="attr-row">
+      <div class="attr-name"><code>${a.name}</code></div>
+      <div class="attr-origen">${a.origen}</div>
+      <div><span class="attr-tag ${a.tag}">${
+        a.tag==='key'?'LLAVE': a.tag==='upd'?'ACTUALIZA': a.tag==='new'?'NUEVO':'HEREDADO'
+      }</span></div>
+      <div class="attr-desc">${a.desc}</div>
+    </div>
+  `).join("");
+
+  const transformHTML = s.transform.map((t,i)=>`
+    <div class="transform-node">
+      <div class="transform-node-title"><span>${t.ico}</span>${t.title}</div>
+      <div class="transform-node-body">${t.body}</div>
+    </div>
+    ${i < s.transform.length-1 ? '<div class="transform-arrow">↓</div>' : ''}
+  `).join("");
+
+  const notesHTML = s.notes.map(n=>`
+    <li class="${n.type==='critical'?'critical':n.type==='decision'?'decision':''}">
+      ${n.type==='critical'?'⚠ ':''}${n.type==='decision'?'◆ ':''}${n.text}
+    </li>
+  `).join("");
+
+  document.getElementById("detail-body").innerHTML = `
+    <div class="detail-section">
+      <h3>Atributos que nacen en esta etapa (${s.new_attrs.length})</h3>
+      <div class="attr-table">
+        <div class="attr-row hdr">
+          <div>Atributo</div>
+          <div>Origen</div>
+          <div>Tipo</div>
+        </div>
+        ${attrRows}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Transformación del dato</h3>
+      <div class="transform-flow">${transformHTML}</div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Notas y decisiones del blueprint</h3>
+      <ul class="notes-list">${notesHTML}</ul>
+    </div>
+  `;
+
+  panel.classList.add("open");
+}
+
+function closeDetail(){
+  document.getElementById("detail-panel").classList.remove("open");
+  document.querySelectorAll(".stage").forEach(el=>el.classList.remove("active"));
+}
+
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDetail(); });
+
+renderTimeline();
+</script>
+</body>
+</html>
