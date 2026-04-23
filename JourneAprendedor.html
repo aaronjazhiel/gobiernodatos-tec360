@@ -517,35 +517,38 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
   letter-spacing:-.1px;
 }
 
-/* flow diagram */
+/* flow diagram — N columns dynamic */
 .flow-wrap{
-  display:grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  gap:6px; align-items:center;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  padding:2px 0;
 }
-.flow-col{display:flex; flex-direction:column; gap:6px}
+.flow-wrap::-webkit-scrollbar{height:4px}
+.flow-col{
+  display:flex; flex-direction:column; gap:6px;
+  flex:1 1 0;
+  min-width:0;
+}
 .flow-node{
-  padding:6px 9px; border-radius:6px;
-  font-size:10.5px; font-weight:500;
-  text-align:center;
-  background:var(--fn-bg); color:var(--fn-fg);
-  border:1px solid var(--fn-border);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.flow-arrow{
-  color:var(--muted); font-size:14px;
-  justify-self:center;
-}
-.flow-mid, .flow-end{
-  padding:8px 10px; border-radius:7px;
+  padding:7px 10px; border-radius:7px;
   font-size:10.5px; font-weight:500;
   text-align:center; line-height:1.25;
-  background:#EFF6FF; color:#1D4ED8;
-  border:1px solid #BFDBFE;
+  background:var(--fn-bg); color:var(--fn-fg);
+  border:1px solid var(--fn-border);
+  white-space:normal;
+  word-break:break-word;
   display:flex; flex-direction:column; align-items:center; gap:2px;
 }
-.flow-end{background:#F5F3FF; color:#6D28D9; border-color:#DDD6FE}
-.flow-node-ico{font-size:13px}
+.flow-node.with-ico{padding:8px 10px}
+.flow-node-ico{font-size:14px; line-height:1}
+.flow-arrow{
+  color:var(--muted); font-size:14px;
+  flex-shrink:0;
+  padding:0 2px;
+}
 
 /* donut */
 .donut-wrap{
@@ -701,6 +704,11 @@ const JOURNEY = {
         hab_destino:["Portal Unificado","CRM (Salesforce)","Clarity","FUD (Data Warehouse)"],
         tx_types:["API / Batch","Event-driven","API","Event streaming"],
         capacidad:"Enganche de aprendedores prospecto",
+        flow:[
+          { nodes:["HubSpot","Portal Unificado","CRM (Salesforce)","Clarity"] },
+          { nodes:["CRM (Salesforce)"], ico:"☁" },
+          { nodes:["FUD (Data Warehouse)"], ico:"🗄" }
+        ],
         atributos:[
           {atributo:"Impresión de anuncio",   tipo:"Evento (interacción)",  tipoClass:"event",   obl:true, origen:"HubSpot",          destino:"Portal Unificado", etapa:"Detonante / Búsqueda", regla:"Debe registrarse fecha, canal y tipo de anuncio",   catalogo:"—",                          estado:"Registrado"},
           {atributo:"Clic en anuncio",        tipo:"Evento (interacción)",  tipoClass:"event",   obl:true, origen:"HubSpot",          destino:"Portal Unificado", etapa:"Detonante / Búsqueda", regla:"Debe registrarse URL destino y campaña asociada",    catalogo:"—",                          estado:"Registrado"},
@@ -728,6 +736,11 @@ const JOURNEY = {
         hab_destino:["CRM (Salesforce)","Clarity","FUD (Data Warehouse)"],
         tx_types:["API","Event streaming"],
         capacidad:"Enganche de aprendedores prospecto",
+        flow:[
+          { nodes:["Portal Unificado","Clarity"] },
+          { nodes:["CRM (Salesforce)"], ico:"☁" },
+          { nodes:["FUD (Data Warehouse)"], ico:"🗄" }
+        ],
         atributos:[
           {atributo:"Nombre completo",        tipo:"Dato personal",      tipoClass:"personal",obl:true, origen:"Portal Unificado", destino:"CRM (Salesforce)", etapa:"Acceso al Portal Unificado", regla:"Nombre y apellido obligatorios", catalogo:"MDM Persona Física", estado:"Estandarizado"},
           {atributo:"UTM source/medium",      tipo:"Dato analítico",     tipoClass:"analytic",obl:false,origen:"Portal Unificado", destino:"FUD (Data Warehouse)", etapa:"Acceso al Portal Unificado", regla:"Capturar si viene de campaña", catalogo:"—", estado:"Parcialmente estandarizado"},
@@ -749,6 +762,12 @@ const JOURNEY = {
         hab_destino:["CRM (Salesforce)","FUD (Data Warehouse)"],
         tx_types:["API","Batch"],
         capacidad:"Enganche de aprendedores prospecto",
+        flow:[
+          { nodes:["Portal Unificado"] },
+          { nodes:["HubSpot"], ico:"🧲" },
+          { nodes:["CRM (Salesforce)"], ico:"☁" },
+          { nodes:["FUD (Data Warehouse)"], ico:"🗄" }
+        ],
         atributos:[
           {atributo:"Lead ID",             tipo:"Dato maestro (Prospecto/Lead)", tipoClass:"master",   obl:true, origen:"HubSpot",          destino:"CRM (Salesforce)", etapa:"Registro de interés", regla:"Generado automáticamente", catalogo:"MDM Persona Física", estado:"Estandarizado"},
           {atributo:"Fecha de registro",   tipo:"Dato operativo",    tipoClass:"op",       obl:true, origen:"Portal Unificado", destino:"CRM (Salesforce)", etapa:"Registro de interés", regla:"Timestamp ISO 8601",      catalogo:"—", estado:"Estandarizado"},
@@ -771,6 +790,11 @@ const JOURNEY = {
         hab_destino:["Portal Unificado","FUD (Data Warehouse)"],
         tx_types:["API REST","On-demand","Event streaming"],
         capacidad:"Oferta inicial de rutas de aprendizaje",
+        flow:[
+          { nodes:["SEA","CMS","PASE","VTEX"] },
+          { nodes:["Portal Unificado"], ico:"🌐" },
+          { nodes:["FUD (Data Warehouse)"], ico:"🗄" }
+        ],
         atributos:[
           {atributo:"Programa ID",        tipo:"Dato maestro",      tipoClass:"master", obl:true, origen:"SEA",            destino:"Portal Unificado", etapa:"Exploración de oferta", regla:"Identificador único en SEA",     catalogo:"SEA – Programa Académico", estado:"Estandarizado"},
           {atributo:"Nombre del programa",tipo:"Dato maestro",      tipoClass:"master", obl:true, origen:"SEA",            destino:"Portal Unificado", etapa:"Exploración de oferta", regla:"Nombre oficial del programa",    catalogo:"SEA – Programa Académico", estado:"Estandarizado"},
@@ -796,6 +820,11 @@ const JOURNEY = {
         hab_destino:["VTEX","CRM (Salesforce)"],
         tx_types:["API","On-demand"],
         capacidad:"Selección sobre ofertas de aprendizaje",
+        flow:[
+          { nodes:["Portal Unificado","SEA"] },
+          { nodes:["VTEX"], ico:"🛒" },
+          { nodes:["CRM (Salesforce)","FUD (Data Warehouse)"] }
+        ],
         atributos:[
           {atributo:"Programa seleccionado",tipo:"Dato transaccional",tipoClass:"tx",     obl:true, origen:"Portal Unificado",destino:"VTEX",             etapa:"Evaluación y decisión", regla:"Referencia a SKU VTEX",          catalogo:"VTEX Catálogo", estado:"Parcialmente estandarizado"},
           {atributo:"Intención de compra", tipo:"Dato transaccional",tipoClass:"tx",     obl:true, origen:"Portal Unificado",destino:"CRM (Salesforce)", etapa:"Evaluación y decisión", regla:"Timestamp + producto",          catalogo:"—", estado:"Registrado"},
@@ -813,6 +842,12 @@ const JOURNEY = {
         hab_destino:["CRM (Salesforce)","SEA","MDM","Gestor de Pagos","Interfactura"],
         tx_types:["API","OIDC/OAuth","Event-driven","API / Event"],
         capacidad:"Comercialización y registro de aprendedores",
+        flow:[
+          { nodes:["Portal Unificado","Identity Manager"] },
+          { nodes:["VTEX"], ico:"🛒" },
+          { nodes:["Middleware"], ico:"☁" },
+          { nodes:["Gestor de Pagos","Interfactura","MDM","SEA","CRM (Salesforce)"] }
+        ],
         atributos:[
           {atributo:"User ID",            tipo:"Dato maestro (identidad)", tipoClass:"master",   obl:true, origen:"Identity Manager", destino:"Portal Unificado", etapa:"Inscripción y pago", regla:"Identificador único",         catalogo:"Identity Manager", estado:"Estandarizado"},
           {atributo:"Orden de compra",    tipo:"Dato transaccional",   tipoClass:"tx",       obl:true, origen:"VTEX",             destino:"Middleware",       etapa:"Inscripción y pago", regla:"Carrito con SKUs válidos",     catalogo:"VTEX Catálogo", estado:"Estandarizado"},
@@ -844,6 +879,11 @@ const JOURNEY = {
         hab_destino:["LXP / LMS","SEA","FUD (Data Warehouse)"],
         tx_types:["API","LTI","Event / Batch","SCIM"],
         capacidad:"Entrega de aprendizaje y enseñanza",
+        flow:[
+          { nodes:["SEA","Identity Manager"] },
+          { nodes:["LXP / LMS (Canvas, Cypher)"], ico:"📚" },
+          { nodes:["SEA","FUD (Data Warehouse)"] }
+        ],
         atributos:[
           {atributo:"Matrícula académica",tipo:"Dato maestro académico",tipoClass:"master", obl:true, origen:"SEA",  destino:"LXP / LMS",         etapa:"Vivencia y aprendizaje", regla:"Alta formal en SEA",           catalogo:"SEA – Matrícula",      estado:"Estandarizado"},
           {atributo:"Accesos provisionados",tipo:"Dato operacional",   tipoClass:"op",     obl:true, origen:"SEA",  destino:"LXP / LMS",         etapa:"Vivencia y aprendizaje", regla:"Roles y permisos correctos",   catalogo:"—",                    estado:"Parcialmente estandarizado"},
@@ -869,6 +909,11 @@ const JOURNEY = {
         hab_destino:["Accredible","Portal Unificado","SEA"],
         tx_types:["API","Batch"],
         capacidad:"Gestión de certificaciones e insignias",
+        flow:[
+          { nodes:["SEA","LXP / LMS"] },
+          { nodes:["Accredible"], ico:"🎖" },
+          { nodes:["Portal Unificado","SEA"] }
+        ],
         atributos:[
           {atributo:"Acreditación ID",  tipo:"Dato maestro (credencial)", tipoClass:"master", obl:true, origen:"Accredible",destino:"Portal Unificado", etapa:"Reconocimiento", regla:"ID único emitido",       catalogo:"Accredible", estado:"Estandarizado"},
           {atributo:"Fecha de emisión", tipo:"Dato operativo",    tipoClass:"op",     obl:true, origen:"Accredible",destino:"Portal Unificado", etapa:"Reconocimiento", regla:"Timestamp ISO",         catalogo:"—",          estado:"Estandarizado"},
@@ -891,6 +936,11 @@ const JOURNEY = {
         hab_destino:["CRM","SEA","LXP / LMS","FUD (Data Warehouse)","BI"],
         tx_types:["OIDC","SCIM","Event streaming","ETL"],
         capacidad:"Mantenimiento de registro y analítica avanzada",
+        flow:[
+          { nodes:["Identity Manager","MDM","Qualtrics","Clarity"] },
+          { nodes:["FUD (Data Warehouse)"], ico:"🗄" },
+          { nodes:["CRM","SEA","LXP / LMS","BI"] }
+        ],
         atributos:[
           {atributo:"Token de sesión",   tipo:"Dato operacional",    tipoClass:"op",      obl:true, origen:"Identity Manager",destino:"Portal Unificado",etapa:"Transversal", regla:"JWT firmado",                  catalogo:"Identity Manager", estado:"Estandarizado"},
           {atributo:"Golden Record",     tipo:"Dato maestro",        tipoClass:"master",  obl:false,origen:"MDM",             destino:"CRM / SEA / LXP", etapa:"Transversal", regla:"Solo usuarios facturados",     catalogo:"MDM Persona Física",estado:"Parcialmente estandarizado"},
@@ -1116,17 +1166,26 @@ function renderMain(){
     </tr>
   `).join('');
 
-  /* flow diagram: show first 3-4 fuentes → middle → dest */
-  const flowFuentes = sub.hab_fuente.slice(0,4);
-  const flowMiddle  = sub.hab_destino.find(x=>/CRM|Middleware|Identity|MDM/i.test(x)) || sub.hab_destino[0];
-  const flowEnd     = sub.hab_destino.find(x=>/FUD|Warehouse|BI/i.test(x)) || sub.hab_destino[sub.hab_destino.length-1];
+  /* flow diagram: use sub.flow if declared, else auto-infer from fuentes/destinos */
+  const flowSteps = sub.flow || [
+    { nodes: sub.hab_fuente.slice(0,4) },
+    { nodes: [ sub.hab_destino.find(x=>/CRM|Middleware|Identity|MDM/i.test(x)) || sub.hab_destino[0] ], ico:"☁" },
+    { nodes: [ sub.hab_destino.find(x=>/FUD|Warehouse|BI/i.test(x)) || sub.hab_destino[sub.hab_destino.length-1] ], ico:"🗄" }
+  ];
 
-  const flowFuenteHTML = flowFuentes.map(f=>{
-    const m = habitadorIcons[f]||{bg:"#9CA3AF"};
-    return `<div class="flow-node" style="--fn-bg:${m.bg}15;--fn-fg:${m.bg};--fn-border:${m.bg}40">${f}</div>`;
+  const flowHTML = flowSteps.map((step,i)=>{
+    const colHTML = (step.nodes||[]).map(n=>{
+      const m = habitadorIcons[n] || {bg:"#9CA3AF"};
+      const hasIco = step.ico && step.nodes.length===1;
+      return `<div class="flow-node ${hasIco?'with-ico':''}"
+                   style="--fn-bg:${m.bg}15;--fn-fg:${m.bg};--fn-border:${m.bg}40">
+        ${hasIco ? `<span class="flow-node-ico">${step.ico}</span>` : ''}
+        <span>${n}</span>
+      </div>`;
+    }).join('');
+    const arrow = (i < flowSteps.length-1) ? `<span class="flow-arrow">→</span>` : '';
+    return `<div class="flow-col">${colHTML}</div>${arrow}`;
   }).join('');
-  const midMeta = habitadorIcons[flowMiddle]||{bg:"#4A6BDB"};
-  const endMeta = habitadorIcons[flowEnd]||{bg:"#7C3AED"};
 
   /* donut: group by tipoClass */
   const groups = {};
@@ -1251,19 +1310,7 @@ function renderMain(){
         <!-- flow -->
         <div class="side-card">
           <h3>Flujo del dato en el proceso</h3>
-          <div class="flow-wrap">
-            <div class="flow-col">${flowFuenteHTML}</div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-mid" style="--fn-bg:${midMeta.bg}15;color:${midMeta.bg};border-color:${midMeta.bg}40">
-              <span class="flow-node-ico">☁</span>
-              <span>${flowMiddle}</span>
-            </div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-end" style="color:${endMeta.bg};border-color:${endMeta.bg}40;background:${endMeta.bg}12">
-              <span class="flow-node-ico">🗄</span>
-              <span>${flowEnd}</span>
-            </div>
-          </div>
+          <div class="flow-wrap">${flowHTML}</div>
         </div>
 
         <!-- donut -->
