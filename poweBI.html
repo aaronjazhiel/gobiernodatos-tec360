@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulación del reporte · Dominio Persona</title>
+<style>
+  :root{
+    --tec:#0033A0; --tec-deep:#00246E; --tec-tint:#E8EEFA; --tec-line:#B4C4E6;
+    --ink:#1B2534; --muted:#616D80; --line:#DFE3EA; --canvas:#F1F3F7; --paper:#FFF;
+    --shadow:0 1px 3px rgba(20,32,58,.10),0 1px 1px rgba(20,32,58,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--canvas);color:var(--ink);
+       font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  /* ---- explicación previa ---- */
+  .intro{background:var(--tec-deep);color:#fff;padding:30px 0 28px;border-bottom:5px solid var(--tec)}
+  .in{max-width:1240px;margin:0 auto;padding:0 22px}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9DB4E8;margin:0 0 10px;font-weight:bold}
+  .intro h1{margin:0 0 10px;font-size:26px;letter-spacing:-.01em}
+  .intro p{margin:0;max-width:78ch;color:#C3D2EC;font-size:14.5px}
+
+  /* ---- barra de modo ---- */
+  .modebar{background:var(--paper);border-bottom:1px solid var(--line)}
+  .modebar .in{display:flex;align-items:center;gap:18px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+  .modebar .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:bold}
+  .bm{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .bm button{font-family:inherit;font-size:13px;padding:8px 16px;border:0;background:var(--paper);
+             color:var(--muted);cursor:pointer;font-weight:bold}
+  .bm button+button{border-left:1px solid var(--line)}
+  .bm button[aria-pressed="true"]{background:var(--tec);color:#fff}
+  .bm button:focus-visible{outline:3px solid var(--tec);outline-offset:-3px}
+  .modemsg{font-size:13px;color:var(--muted);flex:1;min-width:280px}
+
+  /* ---- lienzo del reporte ---- */
+  .canvasArea{max-width:1240px;margin:22px auto 0;padding:0 22px}
+  .reportframe{background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);overflow:hidden}
+  .rtop{display:flex;justify-content:space-between;align-items:center;gap:12px;
+        padding:12px 18px;border-bottom:1px solid var(--line);background:#FAFBFD;flex-wrap:wrap}
+  .rtop .name{font-weight:bold;font-size:14px}
+  .rtop .name span{color:var(--muted);font-weight:normal}
+  .rtop .tab{font-size:11.5px;color:var(--muted);border:1px solid var(--line);
+             border-radius:3px;padding:4px 10px;background:var(--paper)}
+
+  .rgrid{display:grid;grid-template-columns:236px 1fr;gap:14px;padding:14px;background:var(--canvas)}
+  @media (max-width:860px){.rgrid{grid-template-columns:1fr}}
+
+  .visual{background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow)}
+  .vtitle{font-size:12.5px;font-weight:bold;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .vtitle small{display:block;font-weight:normal;color:var(--muted);font-size:11px;margin-top:2px}
+
+  /* ---- segmentación ---- */
+  .slicer{padding:6px 0 10px;margin:0;list-style:none}
+  .slicer button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font-family:inherit;
+                 font-size:13.5px;background:none;border:0;padding:7px 14px;cursor:pointer;color:var(--ink)}
+  .slicer button:hover{background:var(--canvas)}
+  .slicer button:focus-visible{outline:2px solid var(--tec);outline-offset:-2px}
+  .box{width:13px;height:13px;border:1.5px solid #9AA5B6;border-radius:2px;flex:0 0 auto;position:relative;background:#fff}
+  .slicer button[aria-pressed="true"] .box{background:var(--tec);border-color:var(--tec)}
+  .slicer button[aria-pressed="true"] .box::after{content:"";position:absolute;left:3.5px;top:.5px;
+      width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .slicer button[aria-pressed="true"]{font-weight:bold;color:var(--tec)}
+  .slicer .sub{padding-left:34px}
+  .slicer .k{margin-left:auto;font-size:11px;color:var(--muted);font-weight:normal}
+  .shint{padding:10px 14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+
+  /* ---- tarjetas ---- */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  @media (max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);padding:12px 14px}
+  .card b{display:block;font-size:27px;line-height:1.1;color:var(--ink)}
+  .card span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .card.hl b{color:var(--tec)}
+  .card.off{opacity:.45}
+
+  /* ---- matriz ---- */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+     font-weight:bold;padding:8px 14px;border-bottom:1px solid var(--line);background:#FAFBFD}
+  td{padding:8px 14px;border-bottom:1px solid #EDF0F5;vertical-align:top}
+  tbody tr:hover{background:#FAFBFD}
+  tr.grp td{background:var(--tec-tint);font-weight:bold;color:var(--tec);font-size:11.5px;
+            letter-spacing:.07em;text-transform:uppercase;padding:7px 14px;border-bottom:1px solid var(--tec-line)}
+  tr.her td:first-child{box-shadow:inset 4px 0 0 var(--tec)}
+  tr.her{background:#F6F9FE}
+  .id{font-family:"Courier New",monospace;font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .attr{font-weight:bold}
+  .from{display:block;font-size:11.5px;color:var(--tec);font-weight:normal;margin-top:2px}
+  .chip{display:inline-block;font-family:"Courier New",monospace;font-size:11px;padding:2px 6px;
+        border:1px solid var(--tec-line);border-radius:2px;color:var(--tec);background:#fff;
+        cursor:pointer;font-weight:bold}
+  .chip:hover{background:var(--tec-tint)}
+  .chip:focus-visible{outline:2px solid var(--tec);outline-offset:1px}
+  .chip.pend{color:var(--muted);border-style:dashed;border-color:var(--muted);font-weight:normal}
+  .none{font-size:11.5px;color:#9AA5B6;font-style:italic}
+  .empty{padding:26px 16px;color:var(--muted);font-size:13.5px}
+
+  /* ---- información sobre herramientas ---- */
+  .tip{background:var(--tec-deep);color:#fff;padding:14px 16px;display:none;border-top:1px solid var(--tec)}
+  .tip.on{display:block}
+  .tip .code{font-family:"Courier New",monospace;color:#9DB4E8;font-size:11px;letter-spacing:.05em}
+  .tip b{display:block;font-size:14.5px;margin:3px 0 4px}
+  .tip p{margin:0;color:#C3D2EC;font-size:13px;max-width:82ch}
+
+  footer{max-width:1240px;margin:26px auto 60px;padding:18px 22px 0;border-top:1px solid var(--line);
+         font-size:12.5px;color:var(--muted)}
+  footer p{margin:0 0 8px;max-width:92ch}
+  footer strong{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<section class="intro">
+  <div class="in">
+    <p class="eyebrow">Dominio Persona · Glosario y diccionario V.03 alineado</p>
+    <h1>Así se vería el reporte de Power BI</h1>
+    <p>Simulación del clic que dará quien use el reporte. Selecciona un término en la segmentación de la izquierda y observa qué atributos aparecen. Cambia el modo de arriba para comparar el modelo actual contra el que tendríamos con la hoja de relación.</p>
+  </div>
+</section>
+
+<div class="modebar">
+  <div class="in">
+    <span class="lbl">Modelo de datos</span>
+    <div class="bm" role="group" aria-label="Modelo de datos">
+      <button id="btnSin" aria-pressed="true">Actual</button>
+      <button id="btnCon" aria-pressed="false">Con hoja de relación</button>
+    </div>
+    <p class="modemsg" id="modemsg"></p>
+  </div>
+</div>
+
+<div class="canvasArea">
+  <div class="reportframe">
+    <div class="rtop">
+      <div class="name">Gobierno de Datos · Dominio Persona <span>— Atributos por término de negocio</span></div>
+      <div class="tab">Página 1</div>
+    </div>
+
+    <div class="rgrid">
+
+      <div class="visual">
+        <div class="vtitle">Término de negocio<small>Segmentación</small></div>
+        <ul class="slicer" id="slicer"></ul>
+        <p class="shint">La jerarquía viene de la columna Término superior del glosario.</p>
+      </div>
+
+      <div>
+        <div class="cards" id="cards"></div>
+        <div class="visual">
+          <div class="vtitle" id="mtitle">Atributos<small id="msub"></small></div>
+          <div id="matrix"></div>
+          <div class="tip" id="tip" role="status"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><strong>Datos.</strong> Fragmento real del diccionario V.03: 20 atributos de Persona Física, 19 de Aprendedor y 10 de Prospecto. No se modificó ningún texto del documento de gobierno.</p>
+  <p><strong>Color institucional.</strong> El azul #0033A0 se muestreó del logotipo del Tecnológico de Monterrey en la portada de la política ITIGID09. Tipografía Arial, conforme a la identidad institucional.</p>
+  <p><strong>Pendiente de gobierno.</strong> Los vínculos marcados como por validar se detectaron por nombre parecido, no idéntico. Los atributos sin término requieren decidir si se da de alta el término en el glosario o si se declara que no aplica.</p>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+var GLO={
+"GLO-PER-001":{n:"Persona",d:"Sujeto único, persistente y trazable con el que la institución mantiene, ha mantenido o puede mantener una relación."},
+"GLO-PER-002":{n:"Persona Física",d:"Tipo de Persona que representa a un individuo real y particular dentro del ecosistema VPAF."},
+"GLO-PER-004":{n:"Rol",d:"Forma en que una Persona participa dentro de una interacción, servicio, oferta, organización o relación institucional."},
+"GLO-APR-001":{n:"Aprendedor",d:"Persona Física que participa, ha participado o ha sido habilitada para participar en una experiencia de aprendizaje."},
+"GLO-PRO-001":{n:"Prospecto",d:"Rol de relación comercial de una Persona Física que manifiesta interés en la oferta institucional."},
+"GLO-PER-005":{n:"Identificador de Persona VPAF",d:"Identificador único y persistente que reconoce al sujeto y permite vincular sus roles, relaciones y registros."},
+"GLO-PER-006":{n:"Tipo de Persona",d:"Clasificación que distingue la naturaleza del sujeto como Persona Física o Persona Moral."},
+"GLO-PER-007":{n:"Estado de Persona",d:"Condición de la Persona como sujeto dentro del ecosistema."},
+"GLO-PER-008":{n:"Estado del Registro de Persona",d:"Condición operativa del registro que representa a la Persona, distinta del estado de la Persona."},
+"GLO-PER-013":{n:"Domicilio o ubicación",d:"Dato asociado de ubicación de la Persona."},
+"GLO-PER-015":{n:"Indicador de mayoría de edad",d:"Dato derivado que indica si la Persona alcanzó la mayoría de edad."},
+"GLO-PER-018":{n:"Trazabilidad mínima",d:"Estructura de control que permite reconstruir qué ocurrió, cuándo y con qué respaldo."},
+"GLO-PER-023":{n:"Fecha de adquisición del rol",d:"Fecha de la primera evidencia o relación válida que permitió reconocer un rol en la Persona."},
+"GLO-APR-002":{n:"Experiencia de aprendizaje",d:"Oferta, curso, edición, grupo, cohorte o programa al que se vincula formalmente el Aprendedor."},
+"GLO-APR-003":{n:"Participación del Aprendedor",d:"Relación formal entre una Persona Física y una experiencia específica de aprendizaje."},
+"GLO-APR-004":{n:"Estado general del rol Aprendedor",d:"Condición general de la Persona como Aprendedor, independiente de una experiencia específica."},
+"GLO-APR-005":{n:"Estado de participación",d:"Condición vigente de la relación de una Persona Física con una experiencia de aprendizaje específica."},
+"GLO-APR-006":{n:"Primer ingreso como Aprendedor",d:"Primera experiencia válida de aprendizaje de la Persona dentro de toda la VPAF."},
+"GLO-PRO-002":{n:"Relación prospectiva",d:"Relación específica entre la Persona Física y un interés comercial identificado."},
+"GLO-PRO-003":{n:"Fuente o canal de captación",d:"Dato de origen que indica por dónde entró el interés de la Persona."},
+"GLO-PRO-004":{n:"Contexto de interés",d:"Contexto de la relación prospectiva: qué oferta o tema despertó el interés."},
+"GLO-PRO-006":{n:"Asesor asignado",d:"Relación de acompañamiento entre el Prospecto y la persona que le da seguimiento."}
+};
+
+// [id, atributo, grupo, obligatoriedad, término, exacto|validar, hereda de]
+var ATR={
+"Persona Física":[
+["DAT-PF-001","Identificador de Persona VPAF","Atributos principales","Sí","GLO-PER-005","exacto",null],
+["DAT-PF-002","Tipo de Persona","Atributos principales","Sí","GLO-PER-006","exacto",null],
+["DAT-PF-003","Nombre(s)","Datos nominales","Sí",null,null,null],
+["DAT-PF-004","Primer apellido","Datos nominales","Condicionado",null,null,null],
+["DAT-PF-005","Segundo apellido","Datos nominales","Condicionado",null,null,null],
+["DAT-PF-006","Fecha de nacimiento","Datos biográficos","Condicionado",null,null,null],
+["DAT-PF-007","Lugar de nacimiento","Datos biográficos","Condicionado",null,null,null],
+["DAT-PF-008","Sexo","Datos demográficos","Condicionado",null,null,null],
+["DAT-PF-009","CURP","Identificadores oficiales","Condicionado",null,null,null],
+["DAT-PF-010","RFC de Persona Física","Identificadores oficiales","Condicionado",null,null,null],
+["DAT-PF-011","NIF","Identificadores oficiales","Condicionado",null,null,null],
+["DAT-PF-012","Indicador de mayoría de edad","Datos asociados","Condicionado por regla","GLO-PER-015","exacto",null],
+["DAT-PF-013","Teléfono","Medios de contacto","Sí",null,null,null],
+["DAT-PF-014","Correo electrónico","Medios de contacto","Sí",null,null,null],
+["DAT-PF-015","Domicilio o ubicación","Medios de contacto","Sí","GLO-PER-013","exacto",null],
+["DAT-PF-016","Estado de Persona","Administración y trazabilidad","Sí","GLO-PER-007","exacto",null],
+["DAT-PF-017","Estado del Registro de Persona","Administración y trazabilidad","Sí","GLO-PER-008","exacto",null],
+["DAT-PF-018","Sistema origen o fuente de alta","Administración y trazabilidad","Sí",null,null,null],
+["DAT-PF-019","Fecha de alta","Administración y trazabilidad","Sí",null,null,null],
+["DAT-PF-020","Trazabilidad mínima","Administración y trazabilidad","Condicionado por evento","GLO-PER-018","exacto",null]
+],
+"Aprendedor":[
+["DAT-APR-001","Identificador de Persona VPAF","Identifican al rol","Sí","GLO-PER-005","exacto","DAT-PF-001"],
+["DAT-APR-002","Identificador de Aprendedor","Identifican al rol","Condicionado",null,null,null],
+["DAT-APR-003","Estado general del rol Aprendedor","Identifican al rol","Sí","GLO-APR-004","exacto",null],
+["DAT-APR-004","Fecha de adquisición del rol","Identifican al rol","Sí","GLO-PER-023","exacto",null],
+["DAT-APR-005","Fecha de primer ingreso como Aprendedor","Identifican al rol","Condicionado","GLO-APR-006","validar",null],
+["DAT-APR-006","Fecha efectiva del estado general","Identifican al rol","Sí",null,null,null],
+["DAT-APR-007","Identificador de participación","Relaciones del rol","Sí, por relación","GLO-APR-003","validar",null],
+["DAT-APR-008","Experiencia o instancia relacionada","Relaciones del rol","Sí, por relación","GLO-APR-002","validar",null],
+["DAT-APR-009","Estado de participación","Relaciones del rol","Sí, por relación","GLO-APR-005","exacto",null],
+["DAT-APR-010","Fecha de habilitación o participación","Relaciones del rol","Sí, por relación",null,null,null],
+["DAT-APR-011","Tipo de ingreso en la experiencia","Relaciones del rol","Condicionado",null,null,null],
+["DAT-APR-012","Motivo de cambio de estado","Relaciones del rol","Condicionado",null,null,null],
+["DAT-APR-013","Estado terminal","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-014","Fecha efectiva","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-015","Estado anterior","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-016","Motivo","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-017","Fuente acreditadora","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-018","Responsable o proceso","Cierre de la relación","Condicionado por evento",null,null,null],
+["DAT-APR-019","Evidencia","Cierre de la relación","Condicionado por evento",null,null,null]
+],
+"Prospecto":[
+["DAT-PRO-001","Identificador de Persona VPAF","Identifican al rol","Sí","GLO-PER-005","exacto","DAT-PF-001"],
+["DAT-PRO-002","Identificador de Prospecto","Identifican al rol","Condicionado",null,null,null],
+["DAT-PRO-003","Estado del Prospecto","Identifican al rol","Sí",null,null,null],
+["DAT-PRO-004","Fecha de adquisición del rol","Identifican al rol","Sí","GLO-PER-023","exacto",null],
+["DAT-PRO-005","Fuente o canal de captación","Relación de prospección e interés","Condicionado","GLO-PRO-003","exacto",null],
+["DAT-PRO-006","Evidencia de origen","Relación de prospección e interés","Condicionado",null,null,null],
+["DAT-PRO-007","Estado de la Relación Prospectiva","Relación de prospección e interés","Sí, por relación","GLO-PRO-002","validar",null],
+["DAT-PRO-008","Identificador de la relación de interés","Relación de prospección e interés","Sí, por relación",null,null,null],
+["DAT-PRO-009","Contexto de interés","Relación de prospección e interés","Condicionado","GLO-PRO-004","exacto",null],
+["DAT-PRO-010","Asesor asignado","Relación de prospección e interés","Condicionado","GLO-PRO-006","exacto",null]
+]};
+
+var NODOS=[
+ {id:"GLO-PER-001",lvl:1,ent:null},
+ {id:"GLO-PER-002",lvl:2,ent:"Persona Física"},
+ {id:"GLO-PER-004",lvl:2,ent:null},
+ {id:"GLO-APR-001",lvl:3,ent:"Aprendedor"},
+ {id:"GLO-PRO-001",lvl:3,ent:"Prospecto"}
+];
+
+var modo="sin", sel="GLO-PER-002";
+var $=function(i){return document.getElementById(i);};
+var slicer=$("slicer"), cards=$("cards"), matrix=$("matrix"),
+    tip=$("tip"), mtitle=$("mtitle"), msub=$("msub"), modemsg=$("modemsg");
+
+function pintarSlicer(){
+  slicer.innerHTML="";
+  NODOS.forEach(function(n){
+    var li=document.createElement("li");
+    var b=document.createElement("button");
+    b.setAttribute("aria-pressed", n.id===sel?"true":"false");
+    if(n.lvl>2) b.className="sub";
+    var k=n.ent?ATR[n.ent].length:0;
+    b.innerHTML='<span class="box"></span>'+GLO[n.id].n+'<span class="k">'+(k||"—")+'</span>';
+    b.addEventListener("click",function(){sel=n.id;tip.className="tip";pintarSlicer();pintarVisual();});
+    li.appendChild(b); slicer.appendChild(li);
+  });
+}
+
+function verTermino(id){
+  tip.className="tip on";
+  tip.innerHTML='<span class="code">'+id+'</span><b>'+GLO[id].n+'</b><p>'+GLO[id].d+'</p>';
+}
+
+function fila(a,conRel){
+  var her=conRel&&a[6];
+  var tr=document.createElement("tr");
+  if(her) tr.className="her";
+  var t1=document.createElement("td"); t1.className="id"; t1.textContent=a[0];
+  var t2=document.createElement("td"); t2.innerHTML='<span class="attr">'+a[1]+'</span>';
+  if(her){
+    var s=document.createElement("span"); s.className="from";
+    s.textContent="hereda de "+a[6]+" · Persona Física";
+    t2.appendChild(s);
+  }
+  var t3=document.createElement("td"); t3.textContent=a[3];
+  var t4=document.createElement("td");
+  if(!conRel){ t4.innerHTML='<span class="none">no disponible</span>'; }
+  else if(a[4]){
+    var c=document.createElement("button");
+    c.className="chip"+(a[5]==="validar"?" pend":"");
+    c.textContent=a[4]+(a[5]==="validar"?" · por validar":"");
+    c.addEventListener("click",function(){verTermino(a[4]);});
+    t4.appendChild(c);
+  } else { t4.innerHTML='<span class="none">sin término</span>'; }
+  [t1,t2,t3,t4].forEach(function(x){tr.appendChild(x);});
+  return tr;
+}
+
+function pintarVisual(){
+  var n=NODOS.filter(function(x){return x.id===sel;})[0];
+  var conRel=(modo==="con");
+  matrix.innerHTML=""; cards.innerHTML="";
+  msub.textContent="Filtrado por: "+GLO[n.id].n;
+
+  if(!n.ent){
+    cards.innerHTML='<div class="card off"><b>0</b><span>Atributos</span></div>';
+    matrix.innerHTML='<p class="empty">Este término organiza la jerarquía pero no tiene atributos propios en el diccionario. Los atributos viven en Persona Física y en cada rol.<br><br>Decisión pendiente: definir si al seleccionar Persona el reporte debe mostrar vacío, como aquí, o heredar hacia abajo los atributos de Persona Física.</p>';
+    return;
+  }
+
+  var todos=ATR[n.ent];
+  var her=conRel?todos.filter(function(a){return a[6];}):[];
+  var pro=conRel?todos.filter(function(a){return !a[6];}):todos;
+  var exa=conRel?todos.filter(function(a){return a[5]==="exacto";}).length:0;
+  var val=conRel?todos.filter(function(a){return a[5]==="validar";}).length:0;
+  var sin=conRel?todos.filter(function(a){return !a[4];}).length:todos.length;
+
+  var c='<div class="card"><b>'+todos.length+'</b><span>Atributos</span></div>';
+  c+='<div class="card'+(conRel?(her.length?" hl":""):" off")+'"><b>'+(conRel?her.length:"—")+'</b><span>Heredados</span></div>';
+  c+='<div class="card'+(conRel?"":" off")+'"><b>'+(conRel?exa+val:"—")+'</b><span>Con término</span></div>';
+  c+='<div class="card"><b>'+sin+'</b><span>Sin término</span></div>';
+  cards.innerHTML=c;
+
+  var t=document.createElement("table");
+  t.innerHTML='<thead><tr><th>ID de dato</th><th>Atributo</th><th>Obligatoriedad</th><th>Término de negocio</th></tr></thead>';
+  var tb=document.createElement("tbody");
+
+  function grupo(txt){
+    var tr=document.createElement("tr"); tr.className="grp";
+    var td=document.createElement("td"); td.colSpan=4; td.textContent=txt;
+    tr.appendChild(td); tb.appendChild(tr);
+  }
+
+  if(conRel&&her.length){
+    grupo("Heredados de Persona Física");
+    her.forEach(function(a){tb.appendChild(fila(a,true));});
+    grupo("Propios de "+GLO[n.id].n);
+    pro.forEach(function(a){tb.appendChild(fila(a,true));});
+  } else {
+    pro.forEach(function(a){tb.appendChild(fila(a,conRel));});
+  }
+  t.appendChild(tb); matrix.appendChild(t);
+}
+
+function pintarMsg(){
+  modemsg.innerHTML=(modo==="sin")
+   ? "El diccionario se carga como lista plana. El reporte no sabe qué atributo es heredado ni a qué término de negocio corresponde."
+   : "Cada atributo queda amarrado a su término y se declara cuál es heredado y de dónde. El reporte ya puede separarlos al filtrar.";
+}
+
+$("btnSin").addEventListener("click",function(){
+  modo="sin"; this.setAttribute("aria-pressed","true");
+  $("btnCon").setAttribute("aria-pressed","false");
+  tip.className="tip"; pintarMsg(); pintarVisual();
+});
+$("btnCon").addEventListener("click",function(){
+  modo="con"; this.setAttribute("aria-pressed","true");
+  $("btnSin").setAttribute("aria-pressed","false");
+  pintarMsg(); pintarVisual();
+});
+
+pintarSlicer(); pintarMsg(); pintarVisual();
+})();
+</script>
+</body>
+</html>
